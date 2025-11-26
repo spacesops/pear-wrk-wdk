@@ -1,6 +1,6 @@
 # @spacesops/pear-wrk-wdk
 
-Note: This package is published as `@tetherto/pear-wrk-wdk` (folder name: `pear-wrk-wdk`).
+Note: This package is published as `@spacesops/pear-wrk-wdk` (folder name: `pear-wrk-wdk`).
 
 A cross-runtime WDK manager and worklet bundle for mobile (iOS/Android) and Node environments. It unifies multi-chain wallet operations (EVM, TON, TRON, BTC, Solana) with optional account abstraction, provides a generated worklet bundle for React Native Bare Kit, and ships an HRPC schema for host↔worklet communication.
 
@@ -37,7 +37,7 @@ See docs at `https://docs.wallet.tether.io`.
 ## ⬇️ Installation
 
 ```bash
-npm install @tetherto/pear-wrk-wdk
+npm install @spacesops/pear-wrk-wdk
 ```
 
 ## 🚀 Quick Start
@@ -45,7 +45,7 @@ npm install @tetherto/pear-wrk-wdk
 ### Importing
 
 ```javascript
-import WDK, { HRPC, bundle } from "@tetherto/pear-wrk-wdk";
+import WDK, { HRPC, bundle } from "@spacesops/pear-wrk-wdk";
 ```
 
 - `default` export: `WDK` (multi-chain manager)
@@ -207,7 +207,7 @@ wdk.dispose()
 Minimal example:
 
 ```javascript
-import WDK, { bundle, HRPC } from '@tetherto/pear-wrk-wdk'
+import WDK, { bundle, HRPC } from '@spacesops/pear-wrk-wdk'
 const wdk = new WDK(seed, config)
 const address = await wdk.getAddress('ethereum', 0)
 ````
@@ -260,7 +260,7 @@ The prebuilt bundle is generated on `postinstall` via `bare-pack` for common iOS
 - Performance: load once at startup and reuse the HRPC context to avoid re-initialization costs.
 
 ```javascript
-import { bundle } from "@tetherto/pear-wrk-wdk";
+import { bundle } from "@spacesops/pear-wrk-wdk";
 // bundle points to bundle/worklet.bundle.mjs
 ```
 
@@ -274,7 +274,7 @@ Targets (from `gen:bundle`):
 An HRPC schema and helpers are provided to integrate the worklet in a host app. See `hrpc-doc.md` for the current commands (e.g., `workletStart`, `getAddress`, `sendTransaction`, AA variants, etc.).
 
 ```javascript
-import { HRPC } from "@tetherto/pear-wrk-wdk";
+import { HRPC } from "@spacesops/pear-wrk-wdk";
 // Use HRPC.spec / messages as needed in your host runtime
 ```
 
