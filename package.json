@@ -1,6 +1,6 @@
 {
   "name": "@spacesops/pear-wrk-wdk",
-  "version": "1.0.0-beta.6",
+  "version": "1.0.0-beta.7",
   "main": "index.js",
   "scripts": {
     "build:types": "find . -name '*.d.ts' -not -path './node_modules/*' -not -path './types/*' -not -path './bundle/*' -delete && tsc",
