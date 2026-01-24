@@ -104,6 +104,90 @@ schemaNs.register({
 })
 
 /**
+ * quoteSendTransactionTX
+ */
+schemaNs.register({
+  name: 'quoteSendTransactionTX-request-options',
+  fields: [
+    { name: 'to', type: 'string', required: true },
+    { name: 'value', type: 'string', required: true },
+    { name: 'feeRate', type: 'string', required: false },
+    { name: 'confirmationTarget', type: 'uint', required: false }
+  ]
+})
+schemaNs.register({
+  name: 'quoteSendTransactionTX-request',
+  fields: [
+    { name: 'network', type: 'string', required: true },
+    { name: 'accountIndex', type: 'uint', required: true },
+    { name: 'options', type: '@wdk-core/quoteSendTransactionTX-request-options', required: true }
+  ]
+})
+
+schemaNs.register({
+  name: 'quoteSendTransactionTX-response',
+  fields: [
+    { name: 'txHex', type: 'string' }
+  ]
+})
+
+/**
+ * quoteSendTransactionWithMemo
+ */
+schemaNs.register({
+  name: 'quoteSendTransactionWithMemo-request-options',
+  fields: [
+    { name: 'to', type: 'string', required: true },
+    { name: 'value', type: 'string', required: true },
+    { name: 'memo', type: 'string', required: true }
+  ]
+})
+schemaNs.register({
+  name: 'quoteSendTransactionWithMemo-request',
+  fields: [
+    { name: 'network', type: 'string', required: true },
+    { name: 'accountIndex', type: 'uint', required: true },
+    { name: 'options', type: '@wdk-core/quoteSendTransactionWithMemo-request-options', required: true }
+  ]
+})
+
+schemaNs.register({
+  name: 'quoteSendTransactionWithMemo-response',
+  fields: [
+    { name: 'fee', type: 'string' }
+  ]
+})
+
+/**
+ * quoteSendTransactionWithMemoTX
+ */
+schemaNs.register({
+  name: 'quoteSendTransactionWithMemoTX-request-options',
+  fields: [
+    { name: 'to', type: 'string', required: true },
+    { name: 'value', type: 'string', required: true },
+    { name: 'memo', type: 'string', required: true },
+    { name: 'feeRate', type: 'string', required: false },
+    { name: 'confirmationTarget', type: 'uint', required: false }
+  ]
+})
+schemaNs.register({
+  name: 'quoteSendTransactionWithMemoTX-request',
+  fields: [
+    { name: 'network', type: 'string', required: true },
+    { name: 'accountIndex', type: 'uint', required: true },
+    { name: 'options', type: '@wdk-core/quoteSendTransactionWithMemoTX-request-options', required: true }
+  ]
+})
+
+schemaNs.register({
+  name: 'quoteSendTransactionWithMemoTX-response',
+  fields: [
+    { name: 'txHex', type: 'string' }
+  ]
+})
+
+/**
  * sendTransaction
  */
 schemaNs.register({
@@ -124,6 +208,34 @@ schemaNs.register({
 
 schemaNs.register({
   name: 'sendTransaction-response',
+  fields: [
+    { name: 'fee', type: 'string' },
+    { name: 'hash', type: 'string' }
+  ]
+})
+
+/**
+ * sendTransactionWithMemo
+ */
+schemaNs.register({
+  name: 'sendTransactionWithMemo-request-options',
+  fields: [
+    { name: 'to', type: 'string', required: true },
+    { name: 'value', type: 'string', required: true },
+    { name: 'memo', type: 'string', required: true }
+  ]
+})
+schemaNs.register({
+  name: 'sendTransactionWithMemo-request',
+  fields: [
+    { name: 'network', type: 'string', required: true },
+    { name: 'accountIndex', type: 'uint', required: true },
+    { name: 'options', type: '@wdk-core/sendTransactionWithMemo-request-options', required: true }
+  ]
+})
+
+schemaNs.register({
+  name: 'sendTransactionWithMemo-response',
   fields: [
     { name: 'fee', type: 'string' },
     { name: 'hash', type: 'string' }
@@ -383,9 +495,33 @@ ns.register({
 })
 
 ns.register({
+  name: 'quoteSendTransactionTX',
+  request: { name: '@wdk-core/quoteSendTransactionTX-request', stream: false },
+  response: { name: '@wdk-core/quoteSendTransactionTX-response', stream: false }
+})
+
+ns.register({
+  name: 'quoteSendTransactionWithMemo',
+  request: { name: '@wdk-core/quoteSendTransactionWithMemo-request', stream: false },
+  response: { name: '@wdk-core/quoteSendTransactionWithMemo-response', stream: false }
+})
+
+ns.register({
+  name: 'quoteSendTransactionWithMemoTX',
+  request: { name: '@wdk-core/quoteSendTransactionWithMemoTX-request', stream: false },
+  response: { name: '@wdk-core/quoteSendTransactionWithMemoTX-response', stream: false }
+})
+
+ns.register({
   name: 'sendTransaction',
   request: { name: '@wdk-core/sendTransaction-request', stream: false },
   response: { name: '@wdk-core/sendTransaction-response', stream: false }
+})
+
+ns.register({
+  name: 'sendTransactionWithMemo',
+  request: { name: '@wdk-core/sendTransactionWithMemo-request', stream: false },
+  response: { name: '@wdk-core/sendTransactionWithMemo-response', stream: false }
 })
 
 ns.register({

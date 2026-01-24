@@ -34,7 +34,15 @@ const methods = new Map([
   ['@wdk-core/getTransactionReceipt', 13],
   [13, '@wdk-core/getTransactionReceipt'],
   ['@wdk-core/dispose', 14],
-  [14, '@wdk-core/dispose']
+  [14, '@wdk-core/dispose'],
+  ['@wdk-core/quoteSendTransactionWithMemo', 15],
+  [15, '@wdk-core/quoteSendTransactionWithMemo'],
+  ['@wdk-core/sendTransactionWithMemo', 16],
+  [16, '@wdk-core/sendTransactionWithMemo'],
+  ['@wdk-core/quoteSendTransactionWithMemoTX', 17],
+  [17, '@wdk-core/quoteSendTransactionWithMemoTX'],
+  ['@wdk-core/quoteSendTransactionTX', 18],
+  [18, '@wdk-core/quoteSendTransactionTX']
 ])
 
 class HRPC {
@@ -56,7 +64,11 @@ class HRPC {
       ['@wdk-core/abstractedSendTransaction', getEncoding('@wdk-core/abstractedSendTransaction-request')],
       ['@wdk-core/abstractedAccountQuoteTransfer', getEncoding('@wdk-core/abstractedAccountQuoteTransfer-request')],
       ['@wdk-core/getTransactionReceipt', getEncoding('@wdk-core/getTransactionReceipt-request')],
-      ['@wdk-core/dispose', getEncoding('@wdk-core/dispose-request')]
+      ['@wdk-core/dispose', getEncoding('@wdk-core/dispose-request')],
+      ['@wdk-core/quoteSendTransactionWithMemo', getEncoding('@wdk-core/quoteSendTransactionWithMemo-request')],
+      ['@wdk-core/sendTransactionWithMemo', getEncoding('@wdk-core/sendTransactionWithMemo-request')],
+      ['@wdk-core/quoteSendTransactionWithMemoTX', getEncoding('@wdk-core/quoteSendTransactionWithMemoTX-request')],
+      ['@wdk-core/quoteSendTransactionTX', getEncoding('@wdk-core/quoteSendTransactionTX-request')]
     ])
     this._responseEncodings = new Map([
       ['@wdk-core/workletStart', getEncoding('@wdk-core/workletStart-response')],
@@ -71,7 +83,11 @@ class HRPC {
       ['@wdk-core/getApproveTransaction', getEncoding('@wdk-core/getApproveTransaction-response')],
       ['@wdk-core/abstractedSendTransaction', getEncoding('@wdk-core/abstractedSendTransaction-response')],
       ['@wdk-core/abstractedAccountQuoteTransfer', getEncoding('@wdk-core/abstractedAccountQuoteTransfer-response')],
-      ['@wdk-core/getTransactionReceipt', getEncoding('@wdk-core/getTransactionReceipt-response')]
+      ['@wdk-core/getTransactionReceipt', getEncoding('@wdk-core/getTransactionReceipt-response')],
+      ['@wdk-core/quoteSendTransactionWithMemo', getEncoding('@wdk-core/quoteSendTransactionWithMemo-response')],
+      ['@wdk-core/sendTransactionWithMemo', getEncoding('@wdk-core/sendTransactionWithMemo-response')],
+      ['@wdk-core/quoteSendTransactionWithMemoTX', getEncoding('@wdk-core/quoteSendTransactionWithMemoTX-response')],
+      ['@wdk-core/quoteSendTransactionTX', getEncoding('@wdk-core/quoteSendTransactionTX-response')]
     ])
     this._rpc = new RPC(stream, async (req) => {
       const command = methods.get(req.command)
@@ -195,6 +211,22 @@ class HRPC {
     return this._callSync('@wdk-core/dispose', args)
   }
 
+  async quoteSendTransactionWithMemo (args) {
+    return this._call('@wdk-core/quoteSendTransactionWithMemo', args)
+  }
+
+  async sendTransactionWithMemo (args) {
+    return this._call('@wdk-core/sendTransactionWithMemo', args)
+  }
+
+  async quoteSendTransactionWithMemoTX (args) {
+    return this._call('@wdk-core/quoteSendTransactionWithMemoTX', args)
+  }
+
+  async quoteSendTransactionTX (args) {
+    return this._call('@wdk-core/quoteSendTransactionTX', args)
+  }
+
   onLog (responseFn) {
     this._handlers['@wdk-core/log'] = responseFn
   }
@@ -253,6 +285,22 @@ class HRPC {
 
   onDispose (responseFn) {
     this._handlers['@wdk-core/dispose'] = responseFn
+  }
+
+  onQuoteSendTransactionWithMemo (responseFn) {
+    this._handlers['@wdk-core/quoteSendTransactionWithMemo'] = responseFn
+  }
+
+  onSendTransactionWithMemo (responseFn) {
+    this._handlers['@wdk-core/sendTransactionWithMemo'] = responseFn
+  }
+
+  onQuoteSendTransactionWithMemoTX (responseFn) {
+    this._handlers['@wdk-core/quoteSendTransactionWithMemoTX'] = responseFn
+  }
+
+  onQuoteSendTransactionTX (responseFn) {
+    this._handlers['@wdk-core/quoteSendTransactionTX'] = responseFn
   }
 
   _requestIsStream (command) {

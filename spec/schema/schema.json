@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 5,
   "schema": [
     {
       "name": "log-type-enum",
@@ -755,6 +755,289 @@
       "compact": false,
       "flagsPosition": -1,
       "fields": []
+    },
+    {
+      "name": "quoteSendTransactionWithMemo-request-options",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "to",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "value",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "memo",
+          "required": true,
+          "type": "string",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionWithMemo-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "network",
+          "required": true,
+          "type": "string",
+          "version": 2
+        },
+        {
+          "name": "accountIndex",
+          "required": true,
+          "type": "uint",
+          "version": 2
+        },
+        {
+          "name": "options",
+          "required": true,
+          "type": "@wdk-core/quoteSendTransactionWithMemo-request-options",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionWithMemo-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 0,
+      "fields": [
+        {
+          "name": "fee",
+          "type": "string",
+          "version": 2
+        }
+      ]
+    },
+    {
+      "name": "sendTransactionWithMemo-request-options",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "to",
+          "required": true,
+          "type": "string",
+          "version": 3
+        },
+        {
+          "name": "value",
+          "required": true,
+          "type": "string",
+          "version": 3
+        },
+        {
+          "name": "memo",
+          "required": true,
+          "type": "string",
+          "version": 3
+        }
+      ]
+    },
+    {
+      "name": "sendTransactionWithMemo-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "network",
+          "required": true,
+          "type": "string",
+          "version": 3
+        },
+        {
+          "name": "accountIndex",
+          "required": true,
+          "type": "uint",
+          "version": 3
+        },
+        {
+          "name": "options",
+          "required": true,
+          "type": "@wdk-core/sendTransactionWithMemo-request-options",
+          "version": 3
+        }
+      ]
+    },
+    {
+      "name": "sendTransactionWithMemo-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 0,
+      "fields": [
+        {
+          "name": "fee",
+          "type": "string",
+          "version": 3
+        },
+        {
+          "name": "hash",
+          "type": "string",
+          "version": 3
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionWithMemoTX-request-options",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 3,
+      "fields": [
+        {
+          "name": "to",
+          "required": true,
+          "type": "string",
+          "version": 4
+        },
+        {
+          "name": "value",
+          "required": true,
+          "type": "string",
+          "version": 4
+        },
+        {
+          "name": "memo",
+          "required": true,
+          "type": "string",
+          "version": 4
+        },
+        {
+          "name": "feeRate",
+          "required": false,
+          "type": "string",
+          "version": 4
+        },
+        {
+          "name": "confirmationTarget",
+          "required": false,
+          "type": "uint",
+          "version": 4
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionWithMemoTX-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "network",
+          "required": true,
+          "type": "string",
+          "version": 4
+        },
+        {
+          "name": "accountIndex",
+          "required": true,
+          "type": "uint",
+          "version": 4
+        },
+        {
+          "name": "options",
+          "required": true,
+          "type": "@wdk-core/quoteSendTransactionWithMemoTX-request-options",
+          "version": 4
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionWithMemoTX-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 0,
+      "fields": [
+        {
+          "name": "txHex",
+          "type": "string",
+          "version": 4
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionTX-request-options",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 2,
+      "fields": [
+        {
+          "name": "to",
+          "required": true,
+          "type": "string",
+          "version": 5
+        },
+        {
+          "name": "value",
+          "required": true,
+          "type": "string",
+          "version": 5
+        },
+        {
+          "name": "feeRate",
+          "required": false,
+          "type": "string",
+          "version": 5
+        },
+        {
+          "name": "confirmationTarget",
+          "required": false,
+          "type": "uint",
+          "version": 5
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionTX-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "network",
+          "required": true,
+          "type": "string",
+          "version": 5
+        },
+        {
+          "name": "accountIndex",
+          "required": true,
+          "type": "uint",
+          "version": 5
+        },
+        {
+          "name": "options",
+          "required": true,
+          "type": "@wdk-core/quoteSendTransactionTX-request-options",
+          "version": 5
+        }
+      ]
+    },
+    {
+      "name": "quoteSendTransactionTX-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 0,
+      "fields": [
+        {
+          "name": "txHex",
+          "type": "string",
+          "version": 5
+        }
+      ]
     }
   ]
 }

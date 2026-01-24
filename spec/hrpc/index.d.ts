@@ -31,6 +31,10 @@ declare class HRPC {
     abstractedAccountQuoteTransfer(args: any): Promise<any>;
     getTransactionReceipt(args: any): Promise<any>;
     dispose(args: any): any;
+    quoteSendTransactionWithMemo(args: any): Promise<any>;
+    sendTransactionWithMemo(args: any): Promise<any>;
+    quoteSendTransactionWithMemoTX(args: any): Promise<any>;
+    quoteSendTransactionTX(args: any): Promise<any>;
     onLog(responseFn: any): void;
     onWorkletStart(responseFn: any): void;
     onGetAddress(responseFn: any): void;
@@ -46,6 +50,10 @@ declare class HRPC {
     onAbstractedAccountQuoteTransfer(responseFn: any): void;
     onGetTransactionReceipt(responseFn: any): void;
     onDispose(responseFn: any): void;
+    onQuoteSendTransactionWithMemo(responseFn: any): void;
+    onSendTransactionWithMemo(responseFn: any): void;
+    onQuoteSendTransactionWithMemoTX(responseFn: any): void;
+    onQuoteSendTransactionTX(responseFn: any): void;
     _requestIsStream(command: any): boolean;
     _responseIsStream(command: any): boolean;
     _requestIsSend(command: any): boolean;

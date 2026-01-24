@@ -112,7 +112,37 @@ export default class WdkManager {
        */
     quoteSendTransaction(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<Omit<TransactionResult, "hash">>;
     /**
-       * Transfers a token to another address.
+     * Quotes a transaction and returns the raw transaction hex for Bitcoin blockchain.
+     *
+     * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+     * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+     * @param {Transaction} options - The transaction options.
+     * @returns {Promise<string>} The raw hexadecimal string of the transaction.
+     * @throws {Error} If blockchain is not Bitcoin.
+     */
+    quoteSendTransactionTX(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<string>;
+    /**
+     * Quotes a transaction with memo for Bitcoin blockchain.
+       *
+       * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+       * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+       * @param {Transaction} options - The transaction options including memo.
+       * @returns {Promise<Omit<TransactionResult, "hash">>} The transaction quote result.
+       * @throws {Error} If blockchain is not Bitcoin.
+       */
+    quoteSendTransactionWithMemo(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<Omit<TransactionResult, "hash">>;
+    /**
+     * Quotes a transaction with memo and returns the raw transaction hex for Bitcoin blockchain.
+     *
+     * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+     * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+     * @param {Transaction} options - The transaction options including memo.
+     * @returns {Promise<string>} The raw hexadecimal string of the transaction.
+     * @throws {Error} If blockchain is not Bitcoin.
+     */
+    quoteSendTransactionWithMemoTX(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<string>;
+    /**
+     * Transfers a token to another address.
        *
        * @param {Blockchain} blockchain - A blockchain identifier (e.g., "ethereum").
        * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
@@ -129,6 +159,16 @@ export default class WdkManager {
        * console.log("Transaction hash:", transfer.hash);
        */
     sendTransaction(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<Omit<TransactionResult, "hash">>;
+    /**
+       * Sends a transaction with memo for Bitcoin blockchain.
+       *
+       * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+       * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+       * @param {Transaction} options - The transaction options including memo.
+       * @returns {Promise<TransactionResult>} The transaction result.
+       * @throws {Error} If blockchain is not Bitcoin.
+       */
+    sendTransactionWithMemo(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<TransactionResult>;
     /**
        * Returns the abstracted address of an account.
        *

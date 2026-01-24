@@ -30,6 +30,18 @@ function createStub (dir) {
   }
 }
 
+function createLedgerBitcoinStub () {
+  const ledgerBitcoinDir = path.join(nodeModulesPath, 'ledger-bitcoin')
+  if (!fs.existsSync(ledgerBitcoinDir)) {
+    fs.mkdirSync(ledgerBitcoinDir, { recursive: true })
+    fs.writeFileSync(path.join(ledgerBitcoinDir, 'index.js'), 'module.exports = {}\n')
+    fs.writeFileSync(
+      path.join(ledgerBitcoinDir, 'package.json'),
+      JSON.stringify({ name: 'ledger-bitcoin', version: '1.0.0', main: 'index.js' }, null, 2) + '\n'
+    )
+  }
+}
+
 function findWsDirectories (dir, depth = 0) {
   if (depth > 10) return // Prevent infinite recursion
   if (!fs.existsSync(dir)) return
@@ -57,6 +69,7 @@ function findWsDirectories (dir, depth = 0) {
 
 if (fs.existsSync(nodeModulesPath)) {
   findWsDirectories(nodeModulesPath)
+  createLedgerBitcoinStub()
   console.log('Created ws optional dependency stubs')
 } else {
   console.warn('node_modules directory not found')

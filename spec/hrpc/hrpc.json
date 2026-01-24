@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 5,
   "schema": [
     {
       "id": 0,
@@ -187,6 +187,58 @@
         "send": true
       },
       "version": 1
+    },
+    {
+      "id": 5,
+      "name": "@wdk-core/quoteSendTransactionWithMemo",
+      "request": {
+        "name": "@wdk-core/quoteSendTransactionWithMemo-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/quoteSendTransactionWithMemo-response",
+        "stream": false
+      },
+      "version": 2
+    },
+    {
+      "id": 7,
+      "name": "@wdk-core/sendTransactionWithMemo",
+      "request": {
+        "name": "@wdk-core/sendTransactionWithMemo-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/sendTransactionWithMemo-response",
+        "stream": false
+      },
+      "version": 3
+    },
+    {
+      "id": 6,
+      "name": "@wdk-core/quoteSendTransactionWithMemoTX",
+      "request": {
+        "name": "@wdk-core/quoteSendTransactionWithMemoTX-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/quoteSendTransactionWithMemoTX-response",
+        "stream": false
+      },
+      "version": 4
+    },
+    {
+      "id": 5,
+      "name": "@wdk-core/quoteSendTransactionTX",
+      "request": {
+        "name": "@wdk-core/quoteSendTransactionTX-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/quoteSendTransactionTX-response",
+        "stream": false
+      },
+      "version": 5
     }
   ]
 }

@@ -50,10 +50,61 @@ rpc.onQuoteSendTransaction(async payload => {
   }
 })
 
+rpc.onQuoteSendTransactionTX(async payload => {
+  try {
+    // Convert amount value to number
+    payload.options.value = Number(payload.options.value)
+    // Convert feeRate to number if provided
+    if (payload.options.feeRate !== undefined) {
+      payload.options.feeRate = Number(payload.options.feeRate)
+    }
+    const txHex = await wdk.quoteSendTransactionTX(payload.network, payload.accountIndex, payload.options)
+    return { txHex }
+  } catch (error) {
+    throw new Error(stringifyError(error))
+  }
+})
+
+rpc.onQuoteSendTransactionWithMemo(async payload => {
+  try {
+    // Convert amount value to number
+    payload.options.value = Number(payload.options.value)
+    const transaction = await wdk.quoteSendTransactionWithMemo(payload.network, payload.accountIndex, payload.options)
+    return { fee: transaction.fee.toString() }
+  } catch (error) {
+    throw new Error(stringifyError(error))
+  }
+})
+
+rpc.onQuoteSendTransactionWithMemoTX(async payload => {
+  try {
+    // Convert amount value to number
+    payload.options.value = Number(payload.options.value)
+    // Convert feeRate to number if provided
+    if (payload.options.feeRate !== undefined) {
+      payload.options.feeRate = Number(payload.options.feeRate)
+    }
+    const txHex = await wdk.quoteSendTransactionWithMemoTX(payload.network, payload.accountIndex, payload.options)
+    return { txHex }
+  } catch (error) {
+    throw new Error(stringifyError(error))
+  }
+})
+
 rpc.onSendTransaction(async payload => {
   try {
     payload.options.value = Number(payload.options.value)
     const transaction = await wdk.sendTransaction(payload.network, payload.accountIndex, payload.options)
+    return { fee: transaction.fee.toString(), hash: transaction.hash }
+  } catch (error) {
+    throw new Error(stringifyError(error))
+  }
+})
+
+rpc.onSendTransactionWithMemo(async payload => {
+  try {
+    payload.options.value = Number(payload.options.value)
+    const transaction = await wdk.sendTransactionWithMemo(payload.network, payload.accountIndex, payload.options)
     return { fee: transaction.fee.toString(), hash: transaction.hash }
   } catch (error) {
     throw new Error(stringifyError(error))

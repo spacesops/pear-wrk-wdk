@@ -260,6 +260,75 @@ class WdkManager {
   }
 
   /**
+     * Quotes a transaction and returns the raw transaction hex for Bitcoin blockchain.
+     *
+     * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+     * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+     * @param {Transaction} options - The transaction options.
+     * @returns {Promise<string>} The raw hexadecimal string of the transaction.
+     * @throws {Error} If blockchain is not Bitcoin.
+     */
+  async quoteSendTransactionTX (blockchain, accountIndex, options) {
+    if (blockchain !== Blockchain.Bitcoin) {
+      throw new Error(`quoteSendTransactionTX is only supported for Bitcoin blockchain. Received: ${blockchain}`)
+    }
+
+    const account = await this.getAccount(blockchain, accountIndex)
+
+    if (typeof account.quoteSendTransactionTX !== 'function') {
+      throw new Error('quoteSendTransactionTX is not supported by this account')
+    }
+
+    return await account.quoteSendTransactionTX(options)
+  }
+
+  /**
+     * Quotes a transaction with memo for Bitcoin blockchain.
+     *
+     * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+     * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+     * @param {Transaction} options - The transaction options including memo.
+     * @returns {Promise<Omit<TransactionResult, "hash">>} The transaction quote result.
+     * @throws {Error} If blockchain is not Bitcoin.
+     */
+  async quoteSendTransactionWithMemo (blockchain, accountIndex, options) {
+    if (blockchain !== Blockchain.Bitcoin) {
+      throw new Error(`quoteSendTransactionWithMemo is only supported for Bitcoin blockchain. Received: ${blockchain}`)
+    }
+
+    const account = await this.getAccount(blockchain, accountIndex)
+
+    if (typeof account.quoteSendTransactionWithMemo !== 'function') {
+      throw new Error('quoteSendTransactionWithMemo is not supported by this account')
+    }
+
+    return await account.quoteSendTransactionWithMemo(options)
+  }
+
+  /**
+     * Quotes a transaction with memo and returns the raw transaction hex for Bitcoin blockchain.
+     *
+     * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+     * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+     * @param {Transaction} options - The transaction options including memo.
+     * @returns {Promise<string>} The raw hexadecimal string of the transaction.
+     * @throws {Error} If blockchain is not Bitcoin.
+     */
+  async quoteSendTransactionWithMemoTX (blockchain, accountIndex, options) {
+    if (blockchain !== Blockchain.Bitcoin) {
+      throw new Error(`quoteSendTransactionWithMemoTX is only supported for Bitcoin blockchain. Received: ${blockchain}`)
+    }
+
+    const account = await this.getAccount(blockchain, accountIndex)
+
+    if (typeof account.quoteSendTransactionWithMemoTX !== 'function') {
+      throw new Error('quoteSendTransactionWithMemoTX is not supported by this account')
+    }
+
+    return await account.quoteSendTransactionWithMemoTX(options)
+  }
+
+  /**
      * Transfers a token to another address.
      *
      * @param {Blockchain} blockchain - A blockchain identifier (e.g., "ethereum").
@@ -280,6 +349,29 @@ class WdkManager {
     const account = await this.getAccount(blockchain, accountIndex)
 
     return await account.sendTransaction(options)
+  }
+
+  /**
+     * Sends a transaction with memo for Bitcoin blockchain.
+     *
+     * @param {Blockchain} blockchain - A blockchain identifier (must be "bitcoin").
+     * @param {number} accountIndex - The index of the account to use (see [BIP-44](https://en.bitcoin.it/wiki/BIP_0044)).
+     * @param {Transaction} options - The transaction options including memo.
+     * @returns {Promise<TransactionResult>} The transaction result.
+     * @throws {Error} If blockchain is not Bitcoin.
+     */
+  async sendTransactionWithMemo (blockchain, accountIndex, options) {
+    if (blockchain !== Blockchain.Bitcoin) {
+      throw new Error(`sendTransactionWithMemo is only supported for Bitcoin blockchain. Received: ${blockchain}`)
+    }
+
+    const account = await this.getAccount(blockchain, accountIndex)
+
+    if (typeof account.sendTransactionWithMemo !== 'function') {
+      throw new Error('sendTransactionWithMemo is not supported by this account')
+    }
+
+    return await account.sendTransactionWithMemo(options)
   }
 
   /**

@@ -21,7 +21,11 @@ declare class HRPC {
     getAddress(args: any): Promise<any>;
     getAddressBalance(args: any): Promise<any>;
     quoteSendTransaction(args: any): Promise<any>;
+    quoteSendTransactionTX(args: any): Promise<any>;
+    quoteSendTransactionWithMemo(args: any): Promise<any>;
+    quoteSendTransactionWithMemoTX(args: any): Promise<any>;
     sendTransaction(args: any): Promise<any>;
+    sendTransactionWithMemo(args: any): Promise<any>;
     getAbstractedAddress(args: any): Promise<any>;
     getAbstractedAddressBalance(args: any): Promise<any>;
     getAbstractedAddressTokenBalance(args: any): Promise<any>;
@@ -36,7 +40,11 @@ declare class HRPC {
     onGetAddress(responseFn: any): void;
     onGetAddressBalance(responseFn: any): void;
     onQuoteSendTransaction(responseFn: any): void;
+    onQuoteSendTransactionTX(responseFn: any): void;
+    onQuoteSendTransactionWithMemo(responseFn: any): void;
+    onQuoteSendTransactionWithMemoTX(responseFn: any): void;
     onSendTransaction(responseFn: any): void;
+    onSendTransactionWithMemo(responseFn: any): void;
     onGetAbstractedAddress(responseFn: any): void;
     onGetAbstractedAddressBalance(responseFn: any): void;
     onGetAbstractedAddressTokenBalance(responseFn: any): void;
