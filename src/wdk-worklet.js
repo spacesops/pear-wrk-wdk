@@ -6,6 +6,21 @@ const { WdkManager } = require('../src/wdk-core/wdk-manager')
 const rpcException = require('../src/exceptions/rpc-exception')
 
 const rpc = new HRPC(IPC)
+
+// Forward worklet console output to the main thread via the log RPC channel.
+// log-type-enum: info=1, error=2, debug=3
+const _wdkLogTypeEnum = { log: 1, warn: 1, error: 2, debug: 3 }
+global.__wdkLog = function (level, args) {
+  try {
+    const type = _wdkLogTypeEnum[level] || 1
+    const data = args.map(function (a) {
+      if (typeof a === 'object') { try { return JSON.stringify(a) } catch (e) { return '[Circular]' } }
+      return String(a)
+    }).join(' ')
+    rpc.log({ type, data })
+  } catch (e) { /* ignore */ }
+}
+
 /**
  *
  * @type {WdkManager}

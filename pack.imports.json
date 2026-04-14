@@ -1,7 +1,10 @@
 {
   "http": "bare-http1",
   "http2": "bare-http1",
-  "bufferutil": "bufferutil",
-  "utf-8-validate": "utf-8-validate",
-  "ledger-bitcoin": "ledger-bitcoin"
+  "bufferutil": "/Users/i830671/git/wdk-react-native-provider/node_modules/@tetherto/pear-wrk-wdk/shims/bufferutil/index.js",
+  "utf-8-validate": "/Users/i830671/git/wdk-react-native-provider/node_modules/@tetherto/pear-wrk-wdk/shims/utf-8-validate/index.js",
+  "ledger-bitcoin": "/Users/i830671/git/wdk-react-native-provider/node_modules/@tetherto/pear-wrk-wdk/shims/ledger-bitcoin/index.js",
+  "bare-crypto": "bare-crypto",
+  "bare-tcp": "bare-tcp",
+  "sodium-native": "sodium-native"
 }
