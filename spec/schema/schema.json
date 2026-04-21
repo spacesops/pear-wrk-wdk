@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "schema": [
     {
       "name": "log-type-enum",
@@ -1036,6 +1036,173 @@
           "name": "txHex",
           "type": "string",
           "version": 5
+        }
+      ]
+    },
+    {
+      "name": "deriveTaprootAddressesFromPaths-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "relativePathsJson",
+          "required": true,
+          "type": "string",
+          "version": 6
+        }
+      ]
+    },
+    {
+      "name": "deriveTaprootAddressesFromPaths-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 0,
+      "fields": [
+        {
+          "name": "addressesJson",
+          "type": "string",
+          "version": 6
+        }
+      ]
+    },
+    {
+      "name": "quoteUpdateTransactionWithHexTX-request-options",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 2,
+      "fields": [
+        {
+          "name": "to",
+          "required": true,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "hex",
+          "required": true,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "priorTx",
+          "required": true,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "priorAccountRelativePath",
+          "required": true,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "value",
+          "required": false,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "feeRate",
+          "required": false,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "confirmationTarget",
+          "required": false,
+          "type": "uint",
+          "version": 6
+        }
+      ]
+    },
+    {
+      "name": "quoteUpdateTransactionWithHexTX-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "network",
+          "required": true,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "fundingAccountIndex",
+          "required": true,
+          "type": "uint",
+          "version": 6
+        },
+        {
+          "name": "options",
+          "required": true,
+          "type": "@wdk-core/quoteUpdateTransactionWithHexTX-request-options",
+          "version": 6
+        }
+      ]
+    },
+    {
+      "name": "quoteUpdateTransactionWithHexTX-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 2,
+      "fields": [
+        {
+          "name": "txHex",
+          "required": false,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "fee",
+          "required": false,
+          "type": "string",
+          "version": 6
+        }
+      ]
+    },
+    {
+      "name": "updateTransactionWithHex-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "network",
+          "required": true,
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "fundingAccountIndex",
+          "required": true,
+          "type": "uint",
+          "version": 6
+        },
+        {
+          "name": "options",
+          "required": true,
+          "type": "@wdk-core/quoteUpdateTransactionWithHexTX-request-options",
+          "version": 6
+        }
+      ]
+    },
+    {
+      "name": "updateTransactionWithHex-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 0,
+      "fields": [
+        {
+          "name": "fee",
+          "type": "string",
+          "version": 6
+        },
+        {
+          "name": "hash",
+          "type": "string",
+          "version": 6
         }
       ]
     }

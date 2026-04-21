@@ -42,7 +42,13 @@ const methods = new Map([
   ['@wdk-core/quoteSendTransactionWithMemoTX', 17],
   [17, '@wdk-core/quoteSendTransactionWithMemoTX'],
   ['@wdk-core/quoteSendTransactionTX', 18],
-  [18, '@wdk-core/quoteSendTransactionTX']
+  [18, '@wdk-core/quoteSendTransactionTX'],
+  ['@wdk-core/deriveTaprootAddressesFromPaths', 19],
+  [19, '@wdk-core/deriveTaprootAddressesFromPaths'],
+  ['@wdk-core/quoteUpdateTransactionWithHexTX', 20],
+  [20, '@wdk-core/quoteUpdateTransactionWithHexTX'],
+  ['@wdk-core/updateTransactionWithHex', 21],
+  [21, '@wdk-core/updateTransactionWithHex']
 ])
 
 class HRPC {
@@ -68,7 +74,10 @@ class HRPC {
       ['@wdk-core/quoteSendTransactionWithMemo', getEncoding('@wdk-core/quoteSendTransactionWithMemo-request')],
       ['@wdk-core/sendTransactionWithMemo', getEncoding('@wdk-core/sendTransactionWithMemo-request')],
       ['@wdk-core/quoteSendTransactionWithMemoTX', getEncoding('@wdk-core/quoteSendTransactionWithMemoTX-request')],
-      ['@wdk-core/quoteSendTransactionTX', getEncoding('@wdk-core/quoteSendTransactionTX-request')]
+      ['@wdk-core/quoteSendTransactionTX', getEncoding('@wdk-core/quoteSendTransactionTX-request')],
+      ['@wdk-core/deriveTaprootAddressesFromPaths', getEncoding('@wdk-core/deriveTaprootAddressesFromPaths-request')],
+      ['@wdk-core/quoteUpdateTransactionWithHexTX', getEncoding('@wdk-core/quoteUpdateTransactionWithHexTX-request')],
+      ['@wdk-core/updateTransactionWithHex', getEncoding('@wdk-core/updateTransactionWithHex-request')]
     ])
     this._responseEncodings = new Map([
       ['@wdk-core/workletStart', getEncoding('@wdk-core/workletStart-response')],
@@ -87,7 +96,10 @@ class HRPC {
       ['@wdk-core/quoteSendTransactionWithMemo', getEncoding('@wdk-core/quoteSendTransactionWithMemo-response')],
       ['@wdk-core/sendTransactionWithMemo', getEncoding('@wdk-core/sendTransactionWithMemo-response')],
       ['@wdk-core/quoteSendTransactionWithMemoTX', getEncoding('@wdk-core/quoteSendTransactionWithMemoTX-response')],
-      ['@wdk-core/quoteSendTransactionTX', getEncoding('@wdk-core/quoteSendTransactionTX-response')]
+      ['@wdk-core/quoteSendTransactionTX', getEncoding('@wdk-core/quoteSendTransactionTX-response')],
+      ['@wdk-core/deriveTaprootAddressesFromPaths', getEncoding('@wdk-core/deriveTaprootAddressesFromPaths-response')],
+      ['@wdk-core/quoteUpdateTransactionWithHexTX', getEncoding('@wdk-core/quoteUpdateTransactionWithHexTX-response')],
+      ['@wdk-core/updateTransactionWithHex', getEncoding('@wdk-core/updateTransactionWithHex-response')]
     ])
     this._rpc = new RPC(stream, async (req) => {
       const command = methods.get(req.command)
@@ -227,6 +239,18 @@ class HRPC {
     return this._call('@wdk-core/quoteSendTransactionTX', args)
   }
 
+  async deriveTaprootAddressesFromPaths (args) {
+    return this._call('@wdk-core/deriveTaprootAddressesFromPaths', args)
+  }
+
+  async quoteUpdateTransactionWithHexTX (args) {
+    return this._call('@wdk-core/quoteUpdateTransactionWithHexTX', args)
+  }
+
+  async updateTransactionWithHex (args) {
+    return this._call('@wdk-core/updateTransactionWithHex', args)
+  }
+
   onLog (responseFn) {
     this._handlers['@wdk-core/log'] = responseFn
   }
@@ -301,6 +325,18 @@ class HRPC {
 
   onQuoteSendTransactionTX (responseFn) {
     this._handlers['@wdk-core/quoteSendTransactionTX'] = responseFn
+  }
+
+  onDeriveTaprootAddressesFromPaths (responseFn) {
+    this._handlers['@wdk-core/deriveTaprootAddressesFromPaths'] = responseFn
+  }
+
+  onQuoteUpdateTransactionWithHexTX (responseFn) {
+    this._handlers['@wdk-core/quoteUpdateTransactionWithHexTX'] = responseFn
+  }
+
+  onUpdateTransactionWithHex (responseFn) {
+    this._handlers['@wdk-core/updateTransactionWithHex'] = responseFn
   }
 
   _requestIsStream (command) {

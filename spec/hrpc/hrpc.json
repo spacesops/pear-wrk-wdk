@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "schema": [
     {
       "id": 0,
@@ -239,6 +239,45 @@
         "stream": false
       },
       "version": 5
+    },
+    {
+      "id": 18,
+      "name": "@wdk-core/deriveTaprootAddressesFromPaths",
+      "request": {
+        "name": "@wdk-core/deriveTaprootAddressesFromPaths-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/deriveTaprootAddressesFromPaths-response",
+        "stream": false
+      },
+      "version": 6
+    },
+    {
+      "id": 20,
+      "name": "@wdk-core/quoteUpdateTransactionWithHexTX",
+      "request": {
+        "name": "@wdk-core/quoteUpdateTransactionWithHexTX-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/quoteUpdateTransactionWithHexTX-response",
+        "stream": false
+      },
+      "version": 6
+    },
+    {
+      "id": 21,
+      "name": "@wdk-core/updateTransactionWithHex",
+      "request": {
+        "name": "@wdk-core/updateTransactionWithHex-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/updateTransactionWithHex-response",
+        "stream": false
+      },
+      "version": 6
     }
   ]
 }

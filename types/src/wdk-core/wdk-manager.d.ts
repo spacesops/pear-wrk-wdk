@@ -141,6 +141,15 @@ export default class WdkManager {
      * @throws {Error} If blockchain is not Bitcoin.
      */
     quoteSendTransactionWithMemoTX(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<string>;
+    quoteUpdateTransactionWithHexTX(blockchain: Blockchain, fundingAccountIndex: number, options: Transaction & {
+        priorAccountRelativePath: string;
+    }): Promise<{
+        hex: string;
+        fee: bigint;
+    }>;
+    updateTransactionWithHex(blockchain: Blockchain, fundingAccountIndex: number, options: Transaction & {
+        priorAccountRelativePath: string;
+    }): Promise<TransactionResult>;
     /**
      * Transfers a token to another address.
        *

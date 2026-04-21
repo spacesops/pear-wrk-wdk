@@ -22,6 +22,8 @@ declare class HRPC {
     getAddressBalance(args: any): Promise<any>;
     quoteSendTransaction(args: any): Promise<any>;
     quoteSendTransactionTX(args: any): Promise<any>;
+    quoteUpdateTransactionWithHexTX(args: any): Promise<any>;
+    updateTransactionWithHex(args: any): Promise<any>;
     quoteSendTransactionWithMemo(args: any): Promise<any>;
     quoteSendTransactionWithMemoTX(args: any): Promise<any>;
     sendTransaction(args: any): Promise<any>;
@@ -41,6 +43,8 @@ declare class HRPC {
     onGetAddressBalance(responseFn: any): void;
     onQuoteSendTransaction(responseFn: any): void;
     onQuoteSendTransactionTX(responseFn: any): void;
+    onQuoteUpdateTransactionWithHexTX(responseFn: any): void;
+    onUpdateTransactionWithHex(responseFn: any): void;
     onQuoteSendTransactionWithMemo(responseFn: any): void;
     onQuoteSendTransactionWithMemoTX(responseFn: any): void;
     onSendTransaction(responseFn: any): void;

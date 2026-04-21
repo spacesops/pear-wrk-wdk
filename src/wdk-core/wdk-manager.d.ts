@@ -239,6 +239,11 @@ export class WdkManager {
        */
     quoteSendTransactionWithMemoTX(blockchain: Blockchain, accountIndex: number, options: Transaction): Promise<string>;
     /**
+       * Quotes an on-chain update (OP_RETURN + prior UTXO) and returns raw hex (Bitcoin only).
+       */
+    quoteUpdateTransactionWithHexTX(blockchain: Blockchain, fundingAccountIndex: number, options: Transaction & { priorAccountRelativePath: string }): Promise<{ hex: string; fee: bigint }>;
+    updateTransactionWithHex(blockchain: Blockchain, fundingAccountIndex: number, options: Transaction & { priorAccountRelativePath: string }): Promise<TransactionResult>;
+    /**
        * Transfers a token to another address.
        *
        * @param {Blockchain} blockchain - A blockchain identifier (e.g., "ethereum").

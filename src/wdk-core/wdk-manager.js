@@ -329,6 +329,76 @@ class WdkManager {
   }
 
   /**
+     * Quotes an on-chain update transaction (OP_RETURN + prior 1077-sat UTXO) and returns raw hex.
+     *
+     * @param {Blockchain} blockchain - Must be {@link Blockchain.Bitcoin}.
+     * @param {number} fundingAccountIndex - BIP-44 account index for the funding signer (e.g. 0).
+     * @param {Object} options - `to`, `hex`, `priorTx`, `priorAccountRelativePath`; optional `value`, `feeRate`, `confirmationTarget`.
+     * @returns {Promise<{ hex: string, fee: bigint }>} Signed transaction hex and fee (not broadcast).
+     */
+  async quoteUpdateTransactionWithHexTX (blockchain, fundingAccountIndex, options) {
+    if (blockchain !== Blockchain.Bitcoin) {
+      throw new Error(`quoteUpdateTransactionWithHexTX is only supported for Bitcoin blockchain. Received: ${blockchain}`)
+    }
+
+    const fundingAccount = await this.getAccount(blockchain, fundingAccountIndex)
+
+    if (typeof fundingAccount.quoteUpdateTransactionWithHexTX !== 'function') {
+      throw new Error('quoteUpdateTransactionWithHexTX is not supported by this account')
+    }
+
+    const priorAccountRelativePath = options.priorAccountRelativePath
+    if (typeof priorAccountRelativePath !== 'string' || priorAccountRelativePath.length === 0) {
+      throw new Error('priorAccountRelativePath is required')
+    }
+
+    const priorAcct = await this.getAccountByPath('bitcoin', priorAccountRelativePath)
+
+    // eslint-disable-next-line no-unused-vars
+    const { priorAccountRelativePath: _omit, ...walletOpts } = options
+
+    return await fundingAccount.quoteUpdateTransactionWithHexTX({
+      ...walletOpts,
+      priorAcct
+    })
+  }
+
+  /**
+     * Broadcasts an on-chain update transaction (same parameters as quoteUpdateTransactionWithHexTX).
+     *
+     * @param {Blockchain} blockchain - Must be {@link Blockchain.Bitcoin}.
+     * @param {number} fundingAccountIndex - BIP-44 account index for the funding signer (e.g. 0).
+     * @param {Object} options - Same as {@link WdkManager#quoteUpdateTransactionWithHexTX}.
+     * @returns {Promise<{ hash: string, fee: bigint }>} Broadcast result.
+     */
+  async updateTransactionWithHex (blockchain, fundingAccountIndex, options) {
+    if (blockchain !== Blockchain.Bitcoin) {
+      throw new Error(`updateTransactionWithHex is only supported for Bitcoin blockchain. Received: ${blockchain}`)
+    }
+
+    const fundingAccount = await this.getAccount(blockchain, fundingAccountIndex)
+
+    if (typeof fundingAccount.updateTransactionWithHex !== 'function') {
+      throw new Error('updateTransactionWithHex is not supported by this account')
+    }
+
+    const priorAccountRelativePath = options.priorAccountRelativePath
+    if (typeof priorAccountRelativePath !== 'string' || priorAccountRelativePath.length === 0) {
+      throw new Error('priorAccountRelativePath is required')
+    }
+
+    const priorAcct = await this.getAccountByPath('bitcoin', priorAccountRelativePath)
+
+    // eslint-disable-next-line no-unused-vars
+    const { priorAccountRelativePath: _omit, ...walletOpts } = options
+
+    return await fundingAccount.updateTransactionWithHex({
+      ...walletOpts,
+      priorAcct
+    })
+  }
+
+  /**
      * Transfers a token to another address.
      *
      * @param {Blockchain} blockchain - A blockchain identifier (e.g., "ethereum").

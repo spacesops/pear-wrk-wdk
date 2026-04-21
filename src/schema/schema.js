@@ -454,6 +454,66 @@ schemaNs.register({
 })
 
 schemaNs.register({
+  name: 'deriveTaprootAddressesFromPaths-request',
+  fields: [
+    { name: 'relativePathsJson', type: 'string', required: true }
+  ]
+})
+
+schemaNs.register({
+  name: 'deriveTaprootAddressesFromPaths-response',
+  fields: [
+    { name: 'addressesJson', type: 'string' }
+  ]
+})
+
+schemaNs.register({
+  name: 'quoteUpdateTransactionWithHexTX-request-options',
+  fields: [
+    { name: 'to', type: 'string', required: true },
+    { name: 'hex', type: 'string', required: true },
+    { name: 'priorTx', type: 'string', required: true },
+    { name: 'priorAccountRelativePath', type: 'string', required: true },
+    { name: 'value', type: 'string', required: false },
+    { name: 'feeRate', type: 'string', required: false },
+    { name: 'confirmationTarget', type: 'uint', required: false }
+  ]
+})
+schemaNs.register({
+  name: 'quoteUpdateTransactionWithHexTX-request',
+  fields: [
+    { name: 'network', type: 'string', required: true },
+    { name: 'fundingAccountIndex', type: 'uint', required: true },
+    { name: 'options', type: '@wdk-core/quoteUpdateTransactionWithHexTX-request-options', required: true }
+  ]
+})
+
+schemaNs.register({
+  name: 'quoteUpdateTransactionWithHexTX-response',
+  fields: [
+    { name: 'txHex', type: 'string', required: false },
+    { name: 'fee', type: 'string', required: false }
+  ]
+})
+
+schemaNs.register({
+  name: 'updateTransactionWithHex-request',
+  fields: [
+    { name: 'network', type: 'string', required: true },
+    { name: 'fundingAccountIndex', type: 'uint', required: true },
+    { name: 'options', type: '@wdk-core/quoteUpdateTransactionWithHexTX-request-options', required: true }
+  ]
+})
+
+schemaNs.register({
+  name: 'updateTransactionWithHex-response',
+  fields: [
+    { name: 'fee', type: 'string' },
+    { name: 'hash', type: 'string' }
+  ]
+})
+
+schemaNs.register({
   name: 'dispose-request',
   fields: []
 })
@@ -565,6 +625,21 @@ ns.register({
   name: 'getTransactionReceipt',
   request: { name: '@wdk-core/getTransactionReceipt-request', stream: false },
   response: { name: '@wdk-core/getTransactionReceipt-response', stream: false }
+})
+ns.register({
+  name: 'deriveTaprootAddressesFromPaths',
+  request: { name: '@wdk-core/deriveTaprootAddressesFromPaths-request', stream: false },
+  response: { name: '@wdk-core/deriveTaprootAddressesFromPaths-response', stream: false }
+})
+ns.register({
+  name: 'quoteUpdateTransactionWithHexTX',
+  request: { name: '@wdk-core/quoteUpdateTransactionWithHexTX-request', stream: false },
+  response: { name: '@wdk-core/quoteUpdateTransactionWithHexTX-response', stream: false }
+})
+ns.register({
+  name: 'updateTransactionWithHex',
+  request: { name: '@wdk-core/updateTransactionWithHex-request', stream: false },
+  response: { name: '@wdk-core/updateTransactionWithHex-response', stream: false }
 })
 ns.register({
   name: 'dispose',

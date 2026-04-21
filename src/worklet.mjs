@@ -65,6 +65,62 @@ rpc.onQuoteSendTransactionTX(async payload => {
   }
 })
 
+function normalizeUpdateHexOptions (options) {
+  const opts = { ...options }
+  if (opts.value !== undefined && opts.value !== null && opts.value !== '') {
+    opts.value = Number(opts.value)
+  } else {
+    delete opts.value
+  }
+  if (opts.feeRate !== undefined && opts.feeRate !== null && opts.feeRate !== '') {
+    opts.feeRate = Number(opts.feeRate)
+  } else {
+    delete opts.feeRate
+  }
+  const ct = opts.confirmationTarget
+  if (!ct) {
+    delete opts.confirmationTarget
+  } else {
+    opts.confirmationTarget = Number(ct)
+  }
+  return opts
+}
+
+rpc.onQuoteUpdateTransactionWithHexTX(async payload => {
+  try {
+    const opts = normalizeUpdateHexOptions(payload.options)
+    const raw = await wdk.quoteUpdateTransactionWithHexTX(
+      payload.network,
+      payload.fundingAccountIndex,
+      opts
+    )
+    const txHex = typeof raw === 'string' ? raw : raw.hex
+    const fee =
+      typeof raw === 'object' && raw != null && raw.fee !== undefined && raw.fee !== null
+        ? String(raw.fee)
+        : undefined
+    return { txHex, fee }
+  } catch (error) {
+    throw new Error(stringifyError(error))
+  }
+})
+
+rpc.onUpdateTransactionWithHex(async payload => {
+  try {
+    const opts = normalizeUpdateHexOptions(payload.options)
+    const transaction = await wdk.updateTransactionWithHex(
+      payload.network,
+      payload.fundingAccountIndex,
+      opts
+    )
+    const hash =
+      typeof transaction.hash === 'string' ? transaction.hash : String(transaction.hash)
+    return { fee: transaction.fee.toString(), hash }
+  } catch (error) {
+    throw new Error(stringifyError(error))
+  }
+})
+
 rpc.onQuoteSendTransactionWithMemo(async payload => {
   try {
     // Convert amount value to number

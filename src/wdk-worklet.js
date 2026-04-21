@@ -7,6 +7,27 @@ const rpcException = require('../src/exceptions/rpc-exception')
 
 const rpc = new HRPC(IPC)
 
+function normalizeUpdateHexOptions (options) {
+  const opts = { ...options }
+  if (opts.value !== undefined && opts.value !== null && opts.value !== '') {
+    opts.value = Number(opts.value)
+  } else {
+    delete opts.value
+  }
+  if (opts.feeRate !== undefined && opts.feeRate !== null && opts.feeRate !== '') {
+    opts.feeRate = Number(opts.feeRate)
+  } else {
+    delete opts.feeRate
+  }
+  const ct = opts.confirmationTarget
+  if (!ct) {
+    delete opts.confirmationTarget
+  } else {
+    opts.confirmationTarget = Number(ct)
+  }
+  return opts
+}
+
 // Forward worklet console output to the main thread via the log RPC channel.
 // log-type-enum: info=1, error=2, debug=3
 const _wdkLogTypeEnum = { log: 1, warn: 1, error: 2, debug: 3 }
@@ -75,6 +96,41 @@ rpc.onQuoteSendTransactionTX(async payload => {
     }
     const txHex = await wdk.quoteSendTransactionTX(payload.network, payload.accountIndex, payload.options)
     return { txHex }
+  } catch (error) {
+    throw new Error(rpcException.stringifyError(error))
+  }
+})
+
+rpc.onQuoteUpdateTransactionWithHexTX(async payload => {
+  try {
+    const opts = normalizeUpdateHexOptions(payload.options)
+    const raw = await wdk.quoteUpdateTransactionWithHexTX(
+      payload.network,
+      payload.fundingAccountIndex,
+      opts
+    )
+    const txHex = typeof raw === 'string' ? raw : raw.hex
+    const fee =
+      typeof raw === 'object' && raw != null && raw.fee !== undefined && raw.fee !== null
+        ? String(raw.fee)
+        : undefined
+    return { txHex, fee }
+  } catch (error) {
+    throw new Error(rpcException.stringifyError(error))
+  }
+})
+
+rpc.onUpdateTransactionWithHex(async payload => {
+  try {
+    const opts = normalizeUpdateHexOptions(payload.options)
+    const transaction = await wdk.updateTransactionWithHex(
+      payload.network,
+      payload.fundingAccountIndex,
+      opts
+    )
+    const hash =
+      typeof transaction.hash === 'string' ? transaction.hash : String(transaction.hash)
+    return { fee: transaction.fee.toString(), hash }
   } catch (error) {
     throw new Error(rpcException.stringifyError(error))
   }
@@ -209,6 +265,28 @@ rpc.onGetApproveTransaction(async payload => {
       return approveTx
     }
     return {}
+  } catch (error) {
+    throw new Error(rpcException.stringifyError(error))
+  }
+})
+
+rpc.onDeriveTaprootAddressesFromPaths(async payload => {
+  try {
+    const relativePaths = JSON.parse(payload.relativePathsJson)
+    if (!Array.isArray(relativePaths)) {
+      throw new Error('relativePathsJson must be a JSON array of path suffix strings')
+    }
+    const entries = []
+    for (const rel of relativePaths) {
+      if (typeof rel !== 'string') {
+        throw new Error('Each relative path must be a string')
+      }
+      const account = await wdk.getAccountByPath('bitcoin', rel)
+      const address = await account.getAddress()
+      const scriptPubKeyHex = account.getScriptPubKeyHex(address)
+      entries.push({ address, scriptPubKeyHex })
+    }
+    return { addressesJson: JSON.stringify(entries) }
   } catch (error) {
     throw new Error(rpcException.stringifyError(error))
   }

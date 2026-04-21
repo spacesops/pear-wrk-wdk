@@ -35,6 +35,9 @@ declare class HRPC {
     sendTransactionWithMemo(args: any): Promise<any>;
     quoteSendTransactionWithMemoTX(args: any): Promise<any>;
     quoteSendTransactionTX(args: any): Promise<any>;
+    quoteUpdateTransactionWithHexTX(args: any): Promise<any>;
+    updateTransactionWithHex(args: any): Promise<any>;
+    deriveTaprootAddressesFromPaths(args: any): Promise<any>;
     onLog(responseFn: any): void;
     onWorkletStart(responseFn: any): void;
     onGetAddress(responseFn: any): void;
@@ -54,6 +57,9 @@ declare class HRPC {
     onSendTransactionWithMemo(responseFn: any): void;
     onQuoteSendTransactionWithMemoTX(responseFn: any): void;
     onQuoteSendTransactionTX(responseFn: any): void;
+    onQuoteUpdateTransactionWithHexTX(responseFn: any): void;
+    onUpdateTransactionWithHex(responseFn: any): void;
+    onDeriveTaprootAddressesFromPaths(responseFn: any): void;
     _requestIsStream(command: any): boolean;
     _responseIsStream(command: any): boolean;
     _requestIsSend(command: any): boolean;
