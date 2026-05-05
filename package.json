@@ -1,6 +1,6 @@
 {
   "name": "@spacesops/pear-wrk-wdk",
-  "version": "1.0.0-beta.23",
+  "version": "1.0.0-beta.25",
   "main": "index.js",
   "scripts": {
     "build:types": "find . -name '*.d.ts' -not -path './node_modules/*' -not -path './types/*' -not -path './bundle/*' -delete && tsc",
@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@wdk/wallet": "https://github.com/tetherto/wdk-wallet#integration-rn-starter",
-    "@wdk/wallet-btc": "file:/Users/i830671/git/wdk-wallet-btc",
+    "@wdk/wallet-btc": "npm:@spacesops/wdk-wallet-btc@^1.0.0-beta.15",
     "@wdk/wallet-evm": "https://github.com/tetherto/wdk-wallet-evm#integration-rn-starter",
     "@wdk/wallet-evm-erc-4337": "https://github.com/tetherto/wdk-wallet-evm-erc-4337#integration-rn-starter",
     "@wdk/wallet-solana": "https://github.com/tetherto/wdk-wallet-solana#integration-rn-starter",
