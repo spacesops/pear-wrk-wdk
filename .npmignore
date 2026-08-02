@@ -1,6 +1,11 @@
 node_modules
 coverage
+test
 tests
 tsconfig.json
 .github
 .editorconfig
+NOTES.md
+pre-publish.md
+bundle
+scripts

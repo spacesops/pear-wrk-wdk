@@ -1,4 +1,4 @@
-# @wdk/bare
+# @spacesops/pear-wrk-wdk
 
 A secure wallet development kit worklet for handling cryptographic operations including seed phrase generation, encryption, and wallet initialization. This module provides a worklet environment for wallet operations using the WDK (Wallet Development Kit) framework.
 
@@ -14,7 +14,7 @@ This module provides a secure worklet implementation that handles:
 ## Installation
 
 ```bash
-npm install @wdk/bare
+npm install @spacesops/pear-wrk-wdk
 ```
 
 ## Architecture
@@ -210,7 +210,7 @@ Dispose of the WDK instance and clean up resources.
 ## Usage Example
 
 ```javascript
-const { bundle, HRPC } = require('@wdk/bare')
+const { bundle, HRPC } = require('@spacesops/pear-wrk-wdk')
 const IPC = require('bare-ipc')
 
 // Create IPC connection

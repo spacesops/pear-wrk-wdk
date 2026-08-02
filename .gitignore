@@ -2,4 +2,6 @@
 /.idea
 .DS_Store
 /generated
+/bundle/
+pack.imports.resolved.json
 *.bundle.js

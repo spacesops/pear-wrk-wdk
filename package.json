@@ -1,6 +1,7 @@
 {
-  "name": "@wdk/bare",
-  "version": "0.1.1",
+  "name": "@spacesops/pear-wrk-wdk",
+  "version": "1.1.1-beta.40",
+  "description": "Spacesops WDK worklet bundle for React Native Bare (EVM, Spark, Bitcoin)",
   "main": "index.js",
   "scripts": {
     "build:types": "tsc --noEmit",
@@ -10,12 +11,13 @@
     "test:watch": "node --test --watch test/**/*.test.js",
     "gen:wallet-modules": "node scripts/generate-wallet-modules.js",
     "gen:hrpc": "node scripts/generate-hrpc.js",
-    "gen:macos-bundle": "npm run gen:wallet-modules && npm run gen:hrpc && npx bare-pack --target darwin-arm64 --linked --out generated/bundle/wdk-worklet.bundle.js src/wdk-worklet.js",
-    "gen:mobile-bundle": "npm run gen:wallet-modules && npm run gen:hrpc && npx bare-pack --target ios-arm64 --target ios-arm64-simulator --target ios-x64-simulator --target android-arm --target android-arm64 --target android-ia32 --target android-x64 --linked --imports ./pack.imports.json --out generated/bundle/wdk-worklet.mobile.bundle.js src/wdk-worklet.js",
-    "postinstall": "npm run gen:mobile-bundle"
+    "gen:macos-bundle": "npm run gen:wallet-modules && npm run gen:hrpc && node scripts/resolve-pack-imports.js && bare-pack --target darwin-arm64 --linked --out generated/bundle/wdk-worklet.bundle.js src/wdk-worklet.js",
+    "gen:mobile-bundle": "npm run gen:wallet-modules && npm run gen:hrpc && node scripts/resolve-pack-imports.js && bare-pack --target ios-arm64 --target ios-arm64-simulator --target ios-x64-simulator --target android-arm --target android-arm64 --target android-ia32 --target android-x64 --linked --imports ./pack.imports.resolved.json --out generated/bundle/wdk-worklet.mobile.bundle.js src/wdk-worklet.js",
+    "prepublishOnly": "npm run gen:mobile-bundle"
   },
   "dependencies": {
     "@scure/bip39": "^1.6.0",
+    "@spacesops/wdk-wallet-btc": "1.0.0-beta.20",
     "@tetherto/wdk": "1.0.0-beta.4",
     "@tetherto/wdk-wallet-evm-erc-4337": "github:itsdeka/wdk-wallet-evm-erc-4337-1#fix/temp-relay-kit",
     "@tetherto/wdk-wallet-spark": "1.0.0-beta.6",
@@ -25,11 +27,22 @@
     "utf-8-validate": "5.0.10"
   },
   "devDependencies": {
+    "bare-ipc": "^1.1.1",
+    "bare-pack": "1.5.1",
     "rimraf": "6.0.1",
     "standard": "17.1.2",
-    "typescript": "5.8.3",
-    "bare-ipc": "^1.1.1"
+    "typescript": "5.8.3"
   },
+  "files": [
+    "index.js",
+    "schema.json",
+    "pack.imports.json",
+    "src/",
+    "types/",
+    "generated/wallet-modules.js",
+    "generated/hrpc/",
+    "generated/bundle/wdk-worklet.mobile.bundle.js"
+  ],
   "exports": {
     ".": {
       "types": "./types/index.d.ts",
@@ -46,6 +59,24 @@
       "types": "./types/rpc.d.ts"
     }
   },
-  "author": "Tether",
-  "license": "Apache-2.0"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spacesops/pear-wrk-wdk.git"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "author": "SpacesOps",
+  "license": "Apache-2.0",
+  "standard": {
+    "ignore": [
+      "generated/**",
+      "node_modules/**",
+      "types/**",
+      "**/*.d.ts",
+      "bundle/**",
+      "test/**"
+    ]
+  }
 }

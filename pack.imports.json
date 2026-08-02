@@ -1,3 +1,12 @@
 {
-    "node:crypto": "bare-crypto"
+  "node:crypto": "bare-crypto",
+  "http": "bare-http1",
+  "http2": "bare-http1",
+  "bufferutil": "./shims/bufferutil/index.js",
+  "utf-8-validate": "./shims/utf-8-validate/index.js",
+  "ledger-bitcoin": "./shims/ledger-bitcoin/index.js",
+  "@ledgerhq/ledger-bitcoin": "./shims/ledger-bitcoin/index.js",
+  "bare-crypto": "bare-crypto",
+  "bare-tcp": "bare-tcp",
+  "sodium-native": "sodium-native"
 }
