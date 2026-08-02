@@ -5,3 +5,4 @@
 /bundle/
 pack.imports.resolved.json
 *.bundle.js
+NOTES.md
