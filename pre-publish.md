@@ -130,7 +130,65 @@ npm view @spacesops/pear-wrk-wdk version
 
 ---
 
-## 11. Downstream (after pear publish)
+## 11. Align `linked:` native names (republish after bare-* drift)
+
+**Problem:** `bare-pack --linked` freezes **`linked:lib<pkg>.<version>.so`** from **pear’s** `node_modules` at pack time. Apps install **core → pear → wallets** and often hoist **newer** `bare-*` than pear’s lock. Then `react-native-bare-kit` link writes `libbare-fs.4.8.0.so` while the bundle asks for `libbare-fs.4.5.2.so` → `ADDON_NOT_FOUND` / `SIGABRT`.
+
+**Fix:** Republish pear with a bundle built from the **same bare-* versions** the app will link (no starter alias script long-term).
+
+### 11.1 Pick the canonical install tree
+
+Use the same pins the app stack will use (example as of core **beta.47**):
+
+| Source | Pin |
+|--------|-----|
+| `@spacesops/wdk-wallet-btc` | `1.0.0-beta.20` (or bumped btc) |
+| `@spacesops/wdk-react-native-core` | documents `react-native-bare-kit` + nested bare graph |
+| Starter `overrides` | e.g. `bare-crypto@1.12.0`, `@spacesops/react-native-bare-kit@0.11.0-beta.45` |
+
+Pear must **`npm ci`** against that graph **before** `gen:mobile-bundle`, not an stale lock from months ago.
+
+### 11.2 Refresh pear lock and pack
+
+```bash
+cd pear-wrk-wdk
+# optional: add npm "overrides" in pear/package.json to match core/starter bare-* pins
+rm -rf node_modules
+npm install          # refresh package-lock.json
+npm run gen:mobile-bundle   # also writes generated/pear-linked-addons.json
+```
+
+- [ ] **`generated/pear-linked-addons.json`** lists every `linked:` name (22 for current evm+spark+btc).
+- [ ] Spot-check: `libbare-crypto.1.12.0.so` still present if apps pin `bare-crypto@1.12.0`.
+- [ ] If the JS graph needs **two** `bare-tls` majors, bundle may list **`libbare-tls.2.1.4.so`** and **`libbare-tls.3.1.x.so`** — both must exist after downstream link (do not override away one copy).
+
+### 11.3 Verify against a consumer (before `npm publish`)
+
+In **wdk-starter-react-native-develop** (or clean temp dir):
+
+```bash
+npm install @spacesops/pear-wrk-wdk@<local-or-file>
+# or npm pack + npm i ../pear-wrk-wdk/spacesops-pear-wrk-wdk-*.tgz
+npm ci   # full starter tree with core + bare-kit
+node node_modules/@spacesops/react-native-bare-kit/android/link.mjs
+rg -o 'linked:lib[^"'\''\\]+' node_modules/@spacesops/pear-wrk-wdk/generated/bundle/wdk-worklet.mobile.bundle.js | sed 's/^linked://' | sort -u > /tmp/pear-linked.txt
+ls node_modules/@spacesops/react-native-bare-kit/android/src/main/addons/arm64-v8a/*.so | xargs -n1 basename | sort -u > /tmp/link-out.txt
+comm -23 /tmp/pear-linked.txt /tmp/link-out.txt   # must be empty (no missing names)
+```
+
+If `comm` prints names, fix pear **overrides** / wallet deps and **`gen:mobile-bundle`** again — do not rely on app-side alias copies.
+
+### 11.4 Version and publish
+
+- [ ] Bump pear **patch beta** (e.g. **`1.1.1-beta.41`**).
+- [ ] Commit **`package-lock.json`**, **`generated/bundle/wdk-worklet.mobile.bundle.js`**, **`generated/pear-linked-addons.json`**.
+- [ ] **`npm publish --access public`**
+- [ ] Pin new pear in **`@spacesops/wdk-react-native-core`**, publish core, then bump starter.
+- [ ] When starter **`verify-pear-addons`** passes **without** `alias-pear-linked-addons.mjs`, remove or narrow starter overrides and delete the alias script (sunset).
+
+---
+
+## 12. Downstream (after pear publish)
 
 - [ ] Pin **`@spacesops/pear-wrk-wdk@<version>`** in `@spacesops/wdk-react-native-core` (`repackage` branch)
 - [ ] Starter: remove `wire-worklet.js` postinstall once core ships btc-inclusive pear

@@ -1,6 +1,6 @@
 {
   "name": "@spacesops/pear-wrk-wdk",
-  "version": "1.1.1-beta.40",
+  "version": "1.1.1-beta.41",
   "description": "Spacesops WDK worklet bundle for React Native Bare (EVM, Spark, Bitcoin)",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "gen:wallet-modules": "node scripts/generate-wallet-modules.js",
     "gen:hrpc": "node scripts/generate-hrpc.js",
     "gen:macos-bundle": "npm run gen:wallet-modules && npm run gen:hrpc && node scripts/resolve-pack-imports.js && bare-pack --target darwin-arm64 --linked --out generated/bundle/wdk-worklet.bundle.js src/wdk-worklet.js",
-    "gen:mobile-bundle": "npm run gen:wallet-modules && npm run gen:hrpc && node scripts/resolve-pack-imports.js && bare-pack --target ios-arm64 --target ios-arm64-simulator --target ios-x64-simulator --target android-arm --target android-arm64 --target android-ia32 --target android-x64 --linked --imports ./pack.imports.resolved.json --out generated/bundle/wdk-worklet.mobile.bundle.js src/wdk-worklet.js",
+    "gen:mobile-bundle": "npm run gen:wallet-modules && npm run gen:hrpc && node scripts/resolve-pack-imports.js && bare-pack --target ios-arm64 --target ios-arm64-simulator --target ios-x64-simulator --target android-arm --target android-arm64 --target android-ia32 --target android-x64 --linked --imports ./pack.imports.resolved.json --out generated/bundle/wdk-worklet.mobile.bundle.js src/wdk-worklet.js && node scripts/extract-linked-addons.mjs",
     "prepublishOnly": "npm run gen:mobile-bundle"
   },
   "dependencies": {
@@ -33,6 +33,20 @@
     "standard": "17.1.2",
     "typescript": "5.8.3"
   },
+  "overrides": {
+    "bare-crypto": "1.12.0",
+    "bare-fs": "4.8.0",
+    "bare-module": "6.4.0",
+    "bare-module-lexer": "1.6.3",
+    "bare-os": "3.9.3",
+    "bare-signals": "5.0.0",
+    "bare-subprocess": "5.2.3",
+    "bare-tls": "3.1.8",
+    "bare-tty": "5.1.2",
+    "bare-url": "2.4.7",
+    "bare-zlib": "1.4.1",
+    "sodium-native": "5.1.0"
+  },
   "files": [
     "index.js",
     "schema.json",
@@ -41,7 +55,8 @@
     "types/",
     "generated/wallet-modules.js",
     "generated/hrpc/",
-    "generated/bundle/wdk-worklet.mobile.bundle.js"
+    "generated/bundle/wdk-worklet.mobile.bundle.js",
+    "generated/pear-linked-addons.json"
   ],
   "exports": {
     ".": {
