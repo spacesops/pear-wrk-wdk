@@ -142,13 +142,15 @@ npm view @spacesops/pear-wrk-wdk version
 
 | Check | Done? | Notes |
 |-------|-------|--------|
-| `@spacesops/wdk-wallet-btc` in dependencies | | |
-| `walletModules.btc` in schema | | |
-| `generated/bundle/wdk-worklet.mobile.bundle.js` | | |
-| `walletManagers['bitcoin']` in generated modules | | |
-| Version > `1.0.0-beta.30` on npm | | |
-| `npm pack --dry-run` looks correct | | |
-| `node -e "require('./index.js')"` OK | | |
+| `@spacesops/wdk-wallet-btc` in dependencies | yes | 1.0.0-beta.20 |
+| `walletModules.btc` in schema | yes | |
+| `generated/bundle/wdk-worklet.mobile.bundle.js` | yes | ~18 MB |
+| `walletManagers['bitcoin']` in generated modules | yes | |
+| Version > `1.0.0-beta.30` on npm | yes | **1.1.1-beta.40 published** |
+| `npm pack --dry-run` looks correct | yes | |
+| `node -e "require('./index.js')"` OK | yes | |
+
+**Phase 2 publish complete.** Downstream: wire `@spacesops/pear-wrk-wdk@1.1.1-beta.40` in `wdk-react-native-core` (see starter repo `docs/phase-2-pear-integration.md`).
 
 ---
 
