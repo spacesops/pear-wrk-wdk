@@ -1,6 +1,6 @@
 {
   "name": "@spacesops/pear-wrk-wdk",
-  "version": "1.1.1-beta.43",
+  "version": "1.1.1-beta.44",
   "description": "Spacesops WDK worklet bundle for React Native Bare (EVM, Spark, Bitcoin)",
   "main": "index.js",
   "scripts": {
