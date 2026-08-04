@@ -196,6 +196,62 @@ If `comm` prints names, fix pear **overrides** / wallet deps and **`gen:mobile-b
 
 ---
 
+## 13. Dependency freshness (worklet bugs that look like app bugs)
+
+**Only the versions `bare-pack` embedded in the bundle run in the worklet.** The same packages installed in the starter's `node_modules` are used for types and never execute, so a bug can be live on device while the starter's copies are fine. Always reproduce against **pear's** `node_modules`, never the starter's.
+
+Two failures on 2026-08-03 were both pear pinning stale transitive deps, and both surfaced as errors that read like native or Android problems:
+
+| Symptom (device) | Actual cause | Fixed by |
+|---|---|---|
+| Every EVM network: `Address "undefined" is invalid. … Version: viem@2.43.3` | `@wdk-safe-global/relay-kit@4.1.0` declares `predictSafeAddress({ owner })` (singular) while `wdk-wallet-evm-erc-4337` calls it with `{ owners: [owner] }`, so the Safe setup calldata encodes `owners: [undefined]` | relay-kit `4.1.2` renamed the param to `owners`; `@tetherto/wdk-wallet-evm-erc-4337@1.0.0-beta.14` drops the Safe kits entirely for `abstractionkit` |
+| `spark`: `MODULE_NOT_FOUND: Cannot find module './wallet-account-spark.js'` | `wdk-wallet-spark@1.0.0-beta.6` `getAccount` uses `await import('./wallet-account-spark.js')`, which fails to resolve inside a packed bundle | `wdk-wallet-spark@1.0.0-beta.11` imports it statically |
+
+The spark error is worth recognising on sight: the file **and** its resolution entry are both in the bundle, and the first listed candidate is the correct URL, so resolution worked and the bundle's `exists()` check is what rejected it. It could not be reproduced with a minimal bundle under bare `1.29.4` or `1.30.3`, so treat "dynamic `import()` in a packed module" as unsupported rather than trying to fix the resolution.
+
+### 13.1 Reproduce in Node from pear's tree (no device, seconds)
+
+```bash
+cd pear-wrk-wdk
+cat > /tmp/check.mjs <<'EOF'
+import bip39 from 'bip39'
+import WDK from '@tetherto/wdk'
+import Manager from '@tetherto/wdk-wallet-evm-erc-4337'
+const seed = new Uint8Array(bip39.mnemonicToSeedSync('test test test test test test test test test test test junk'))
+const wdk = new WDK(seed)
+wdk.registerWallet('ethereum', Manager, {
+  chainId: 1, blockchain: 'ethereum', safeModulesVersion: '0.3.0',
+  entryPointAddress: '0x0000000071727De22E5E9d8BAf0edAc6f37da032'
+})
+const account = await wdk.getAccount('ethereum', 0)
+console.log(await account.getAddress())
+EOF
+cp /tmp/check.mjs . && node check.mjs && rm check.mjs
+```
+
+- [ ] Prints an address. `Address "undefined" is invalid` here means the bundle would fail the same way on device.
+- [ ] **Address must equal the currently shipped one** — for the reference mnemonic above, `0x97682ff1A980a96D65Ea606b717441E3662c557E`. A different address means existing users' funds move; stop and treat it as a migration, not a bump.
+- [ ] `rg -c 'await import\(' node_modules/@tetherto/wdk-wallet-*/src/*.js` returns nothing.
+
+### 13.2 Diff the addon set after `gen:mobile-bundle`
+
+Refreshing `@tetherto` deps pulls a newer `bare-node-runtime`, which adds and removes native addons. Compare against the published manifest before publishing:
+
+```bash
+node -e "
+const a = require('/path/to/starter/node_modules/@spacesops/pear-wrk-wdk/generated/pear-linked-addons.json').linkedAddons
+const b = require('./generated/pear-linked-addons.json').linkedAddons
+const A = new Set(a), B = new Set(b)
+a.filter(x => !B.has(x)).forEach(x => console.log('-', x))
+b.filter(x => !A.has(x)).forEach(x => console.log('+', x))
+"
+```
+
+- [ ] Every **added** name exists in the starter's tree so bare-kit link can produce it, and passes the on-device `dlopen` sweep (starter `NOTES.md`) — new addon versions are exactly where the runtime ABI mismatches bite.
+- [ ] `verify-pear-addons` compares the bundle against **`addons-lock.json`**, not against files on disk, so it can pass while a `.so` is missing. Harmless when the package maps the platform away — `bare-posix` has no Android prebuild and its `exports` resolve `android` to `unsupported.js` — but check any new name against its `prebuilds/` directory.
+
+---
+
 ## Quick status (fill in before publish)
 
 | Check | Done? | Notes |
