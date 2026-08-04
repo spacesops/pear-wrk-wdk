@@ -252,6 +252,62 @@ b.filter(x => !A.has(x)).forEach(x => console.log('+', x))
 
 ---
 
+## 14. Every linked addon must be an exact direct dependency
+
+`bare-pack --linked` bakes **exact** versions into the bundle (`linked:libbare-tcp.2.5.3.so`), but consumers install *later* and resolve the **caret ranges** of whatever transitively depends on those addons. Any addon left unpinned therefore drifts the moment a new version is published, and the bundle asks for a `.so` that the consumer's tree never produces.
+
+So: for every name in `generated/pear-linked-addons.json`, `dependencies` carries that package at that **exact** version. Overrides alone are not enough — npm `overrides` are honoured only in the root manifest, so they pin pear's own pack tree and are **invisible to consumers**. Keep both: `dependencies` fix the consumer's edge, `overrides` stop a nested copy diverging at pack time.
+
+This is what lets the starter drop its `bare-crypto` override, and it makes `verify-pear-addons` meaningful rather than tautological.
+
+Regenerate the pins from the bundle after any `gen:mobile-bundle` that changes the addon set:
+
+```bash
+node -e "
+const fs=require('fs'), p=JSON.parse(fs.readFileSync('package.json','utf8'));
+const pins={};
+for (const n of require('./generated/pear-linked-addons.json').linkedAddons) {
+  const m=n.match(/^lib(.+)\.(\d+\.\d+\.\d+)\.so\$/); if(!m) throw new Error('unparsed: '+n);
+  let k=m[1].replace(/__/g,'/'); if(!/^(bare-|sodium-native)/.test(k)) k='@'+k;
+  pins[k]=m[2];
+}
+const srt=o=>Object.fromEntries(Object.entries(o).sort(([a],[b])=>a.localeCompare(b)));
+p.dependencies=srt({...p.dependencies, ...pins});
+p.overrides=srt({...p.overrides, ...pins});
+fs.writeFileSync('package.json', JSON.stringify(p,null,2)+'\n');
+console.log('pinned '+Object.keys(pins).length);
+"
+rm -rf node_modules package-lock.json && npm install && npm run gen:mobile-bundle
+```
+
+- [ ] Addon set is **unchanged** by the repin (`diff` the old and new `pear-linked-addons.json`). If it changed, the pins disagreed with what actually packs — investigate before publishing.
+- [ ] No addon resolves to **two** copies. An exact pin below what a dependent's range prefers is fine *as long as the pin satisfies that range* — npm then dedupes to the pin. It does not, and you get a second nested copy plus a second `.so` in every consumer APK:
+
+```bash
+node -e "
+const lock=require('./package-lock.json'), pins=require('./package.json').dependencies;
+for (const [pkg,ver] of Object.entries(pins)) {
+  if (!/^(bare-|sodium-native|@buildonspark)/.test(pkg)) continue;
+  const e=Object.entries(lock.packages).filter(([k])=>k.endsWith('node_modules/'+pkg));
+  if (e.length!==1 || e[0][0]!=='node_modules/'+pkg || e[0][1].version!==ver)
+    console.log('CHECK', pkg, 'want', ver, e.map(([k,v])=>k+'@'+v.version).join(' | '));
+}
+console.log('done');
+"
+```
+
+- [ ] Confirm from a **consumer with no overrides** (this is the whole point):
+
+```bash
+npm pack && cd $(mktemp -d) && npm init -y >/dev/null
+npm i /path/to/spacesops-pear-wrk-wdk-<ver>.tgz
+# every linked name must resolve to exactly the bundle's version, one copy each
+```
+
+`bare-subprocess` is deliberately **not** pinned as a dependency: it is not linked in the bundle, and the current `5.2.3` override contradicts `bare-node-runtime`'s `^6.0.0`, so declaring it would force a downgrade on consumers and create the duplicate this section exists to prevent. Both versions already get linked into consumer APKs as dead weight; worth cleaning up separately.
+
+---
+
 ## Quick status (fill in before publish)
 
 | Check | Done? | Notes |

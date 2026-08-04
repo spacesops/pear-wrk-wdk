@@ -6,3 +6,6 @@
 pack.imports.resolved.json
 *.bundle.js
 NOTES.md
+
+# local pack artifacts
+*.tgz
