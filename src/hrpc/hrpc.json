@@ -96,6 +96,19 @@
         "stream": false
       },
       "version": 1
+    },
+    {
+      "id": 8,
+      "name": "@wdk-core/callMethodByPath",
+      "request": {
+        "name": "@wdk-core/callMethodByPath-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/callMethodByPath-response",
+        "stream": false
+      },
+      "version": 1
     }
   ]
 }

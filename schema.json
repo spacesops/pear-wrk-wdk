@@ -154,6 +154,51 @@
       ]
     },
     {
+      "name": "callMethodByPath-request",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": -1,
+      "fields": [
+        {
+          "name": "methodName",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "network",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "path",
+          "required": true,
+          "type": "string",
+          "version": 1
+        },
+        {
+          "name": "args",
+          "required": false,
+          "type": "string",
+          "version": 1
+        }
+      ]
+    },
+    {
+      "name": "callMethodByPath-response",
+      "namespace": "wdk-core",
+      "compact": false,
+      "flagsPosition": 0,
+      "fields": [
+        {
+          "name": "result",
+          "type": "string",
+          "version": 1
+        }
+      ]
+    },
+    {
       "name": "generateEntropyAndEncrypt-request",
       "namespace": "wdk-core",
       "compact": false,

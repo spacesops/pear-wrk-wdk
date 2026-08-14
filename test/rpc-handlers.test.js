@@ -21,6 +21,7 @@ const mockRpc = {
   onGetSeedAndEntropyFromMnemonic: function (handler) { this.handlers.getSeedAndEntropyFromMnemonic = handler },
   onInitializeWDK: function (handler) { this.handlers.initializeWDK = handler },
   onCallMethod: function (handler) { this.handlers.callMethod = handler },
+  onCallMethodByPath: function (handler) { this.handlers.callMethodByPath = handler },
   onDispose: function (handler) { this.handlers.dispose = handler }
 }
 
@@ -54,7 +55,23 @@ describe('RPC Handlers', () => {
           }
           return {
             getAddress: async () => ({ address: `0x${network}-${index}` }),
-            getBalance: async () => ({ balance: '1000000000000000000' })
+            getBalance: async () => ({ balance: '1000000000000000000' }),
+            getScriptPubKeyHex: async (address) => `spk:${address}`
+          }
+        }
+        async getAccountByPath(network, path) {
+          if (!this.wallets[network]) {
+            throw new Error(`Network ${network} not registered`)
+          }
+          return {
+            getAddress: async () => ({ address: `0x${network}-path-${path}` }),
+            getBalance: async () => ({ balance: '2000000000000000000' }),
+            getScriptPubKeyHex: async (address) => `spk:${address}`,
+            getTaprootKeyMaterialHex: async () => ({
+              internalPubKeyHex: 'aa',
+              privateKeyHex: 'bb',
+              tweakedPrivateKeyHex: 'cc'
+            })
           }
         }
         dispose() {
@@ -87,6 +104,7 @@ describe('RPC Handlers', () => {
       assert.ok(mockRpc.handlers.getSeedAndEntropyFromMnemonic, 'getSeedAndEntropyFromMnemonic handler should be registered')
       assert.ok(mockRpc.handlers.initializeWDK, 'initializeWDK handler should be registered')
       assert.ok(mockRpc.handlers.callMethod, 'callMethod handler should be registered')
+      assert.ok(mockRpc.handlers.callMethodByPath, 'callMethodByPath handler should be registered')
       assert.ok(mockRpc.handlers.dispose, 'dispose handler should be registered')
     })
   })
@@ -382,6 +400,78 @@ describe('RPC Handlers', () => {
           accountIndex: -1
         }),
         /accountIndex must be a non-negative integer/
+      )
+    })
+  })
+
+  describe('callMethodByPath', () => {
+    async function initializeWdk () {
+      const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
+      const seedData = await mockRpc.handlers.getSeedAndEntropyFromMnemonic({ mnemonic })
+      const config = {
+        ethereum: { rpcUrl: 'https://eth.example.com' },
+        spark: { rpcUrl: 'https://spark.example.com' }
+      }
+      await mockRpc.handlers.initializeWDK({
+        config: JSON.stringify(config),
+        encryptionKey: seedData.encryptionKey,
+        encryptedSeed: seedData.encryptedSeedBuffer
+      })
+    }
+
+    test('should call WDK method via getAccountByPath', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      const result = await mockRpc.handlers.callMethodByPath({
+        methodName: 'getAddress',
+        network: 'ethereum',
+        path: "9'/0/0"
+      })
+
+      assert.ok(result.result, 'result should be present')
+      const parsed = JSON.parse(result.result)
+      assert.strictEqual(parsed.address, "0xethereum-path-9'/0/0")
+    })
+
+    test('should pass args to the account method', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      const result = await mockRpc.handlers.callMethodByPath({
+        methodName: 'getScriptPubKeyHex',
+        network: 'ethereum',
+        path: "0'/0/1",
+        args: JSON.stringify('bc1qtest')
+      })
+
+      const parsed = JSON.parse(result.result)
+      assert.strictEqual(parsed, 'spk:bc1qtest')
+    })
+
+    test('should reject call when WDK not initialized', async () => {
+      registerRpcHandlers(mockRpc, context)
+
+      await assert.rejects(
+        async () => await mockRpc.handlers.callMethodByPath({
+          methodName: 'getAddress',
+          network: 'ethereum',
+          path: "0'/0/0"
+        }),
+        /WDK not initialized/
+      )
+    })
+
+    test('should reject empty path', async () => {
+      registerRpcHandlers(mockRpc, context)
+
+      await assert.rejects(
+        async () => await mockRpc.handlers.callMethodByPath({
+          methodName: 'getAddress',
+          network: 'ethereum',
+          path: '   '
+        }),
+        /path must be a non-empty string/
       )
     })
   })

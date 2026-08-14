@@ -20,12 +20,20 @@ export interface WDK {
  */
 export interface WDKInstance {
   /**
-   * Get an account for a specific network
-   * @param network - Network name (e.g., 'ethereum', 'spark')
+   * Get an account for a specific network by account index
+   * @param network - Network name (e.g., 'ethereum', 'spark', 'bitcoin')
    * @param accountIndex - Account index
    * @returns Promise resolving to the account instance
    */
   getAccount(network: string, accountIndex: number): Promise<Account>;
+
+  /**
+   * Get an account for a specific network by BIP relative derivation path
+   * @param network - Network name (e.g., 'bitcoin')
+   * @param path - Relative path (e.g., "0'/0/0" or "9'/0/1")
+   * @returns Promise resolving to the account instance
+   */
+  getAccountByPath(network: string, path: string): Promise<Account>;
 
   /**
    * Register a wallet manager for a network

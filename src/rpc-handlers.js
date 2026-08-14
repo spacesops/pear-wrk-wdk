@@ -73,41 +73,64 @@ const withErrorHandling = (handler, defaultErrorCode) => {
 }
 
 /**
- * Generalized function to call any WDK account method
- * This provides a dev-friendly way to call account methods without needing individual handlers
- * 
+ * Resolve a WDK account either by index (`getAccount`) or by derivation path
+ * (`getAccountByPath`), then call a method on it.
+ *
  * @param {Object} context - Context object containing wdk instance
  * @param {string} methodName - The method name to call on the account (e.g., 'getAddress', 'getBalance')
- * @param {string} network - Network name (e.g., 'ethereum', 'spark')
- * @param {number} accountIndex - Account index
+ * @param {string} network - Network name (e.g., 'ethereum', 'bitcoin', 'spark')
+ * @param {{ accountIndex?: number, path?: string }} accountRef - Either accountIndex or BIP relative path
  * @param {any} args - Arguments to pass to the method
  * @param {object} options - Optional configuration
  * @param {function} options.transformResult - Optional function to transform the result
  * @param {any} options.defaultValue - Default value to return if method doesn't exist
  * @returns {Promise<any>} The result from the account method
  */
-const callWdkMethod = async (context, methodName, network, accountIndex, args = null, options = {}) => {
+const callWdkMethodOnAccount = async (context, methodName, network, accountRef, args = null, options = {}) => {
   const { wdk } = context
-  
+
   if (!wdk) {
     throw createErrorWithCode('WDK not initialized. Call initializeWDK first.', ERROR_CODES.WDK_MANAGER_INIT)
   }
-  
-  // Validate network parameter
+
   if (!network || typeof network !== 'string' || network.trim().length === 0) {
     throw createErrorWithCode('Network must be a non-empty string', ERROR_CODES.BAD_REQUEST)
   }
-  
+
+  const hasPath = typeof accountRef?.path === 'string' && accountRef.path.trim().length > 0
+  const hasIndex = typeof accountRef?.accountIndex === 'number'
+
+  if (!hasPath && !hasIndex) {
+    throw createErrorWithCode(
+      'Either path or accountIndex must be provided to resolve an account',
+      ERROR_CODES.BAD_REQUEST
+    )
+  }
+
   let account
   try {
-    account = await wdk.getAccount(network, accountIndex)
+    if (hasPath) {
+      if (typeof wdk.getAccountByPath !== 'function') {
+        throw createErrorWithCode(
+          'WDK.getAccountByPath is not available in this worklet runtime',
+          ERROR_CODES.BAD_REQUEST
+        )
+      }
+      account = await wdk.getAccountByPath(network, accountRef.path.trim())
+    } else {
+      account = await wdk.getAccount(network, accountRef.accountIndex)
+    }
   } catch (error) {
+    if (error.code) throw error
+    const label = hasPath
+      ? `path "${accountRef.path}"`
+      : `index ${accountRef.accountIndex}`
     throw createErrorWithCode(
-      `Failed to get account for network "${network}" at index ${accountIndex}: ${error.message}`,
+      `Failed to get account for network "${network}" at ${label}: ${error.message}`,
       ERROR_CODES.ACCOUNT_BALANCES
     )
   }
-  
+
   if (typeof account[methodName] !== 'function') {
     if (options.defaultValue !== undefined) {
       logger.warn(`${methodName} not available for network: ${network}, returning default value`)
@@ -122,14 +145,45 @@ const callWdkMethod = async (context, methodName, network, accountIndex, args = 
       ERROR_CODES.BAD_REQUEST
     )
   }
-  
+
   const result = await account[methodName](args)
-  
+
   if (options.transformResult) {
     return options.transformResult(result)
   }
-  
+
   return result
+}
+
+/**
+ * Call any WDK account method by network + account index.
+ * @see callWdkMethodOnAccount
+ */
+const callWdkMethod = async (context, methodName, network, accountIndex, args = null, options = {}) => {
+  return callWdkMethodOnAccount(
+    context,
+    methodName,
+    network,
+    { accountIndex },
+    args,
+    options
+  )
+}
+
+/**
+ * Call any WDK account method by network + BIP relative derivation path
+ * (e.g. "0'/0/0" or "9'/0/1") via `wdk.getAccountByPath`.
+ * @see callWdkMethodOnAccount
+ */
+const callWdkMethodByPath = async (context, methodName, network, path, args = null, options = {}) => {
+  return callWdkMethodOnAccount(
+    context,
+    methodName,
+    network,
+    { path },
+    args,
+    options
+  )
 }
 
 /**
@@ -352,6 +406,32 @@ function registerRpcHandlers(rpc, context) {
     return { result: safeStringify(result) }
   }))
 
+  /**
+   * Like callMethod, but resolves the account via wdk.getAccountByPath(network, path).
+   * Path is the wallet-relative BIP suffix (e.g. "0'/0/0" or "9'/0/1"), not the full m/86'/0'/… path.
+   */
+  rpc.onCallMethodByPath(withErrorHandling(async (payload) => {
+    const { methodName, network, path, args: argsJson } = payload
+
+    let args
+    validateRequest(payload, () => {
+      validateNonEmptyString(methodName, 'methodName')
+      validateNonEmptyString(network, 'network')
+      validateNonEmptyString(path, 'path')
+      args = argsJson ? validateJSON(argsJson, 'args') : null
+    }, 'Payload')
+
+    const result = await callWdkMethodByPath(
+      handlerContext,
+      methodName,
+      network,
+      path,
+      args
+    )
+
+    return { result: safeStringify(result) }
+  }))
+
   rpc.onDispose(withErrorHandling(() => {
     if (handlerContext.wdk) {
       handlerContext.wdk.dispose()
@@ -365,6 +445,8 @@ module.exports = {
   withErrorHandling,
   validateRequest,
   createErrorWithCode,
-  callWdkMethod
+  callWdkMethod,
+  callWdkMethodByPath,
+  callWdkMethodOnAccount
 }
 

@@ -4,7 +4,9 @@ import type {
   WorkletStartResponse,
   DisposeRequest,
   CallMethodRequest,
-  CallMethodResponse
+  CallMethodResponse,
+  CallMethodByPathRequest,
+  CallMethodByPathResponse
 } from './rpc';
 
 /**
@@ -48,11 +50,19 @@ export class HRPC {
   dispose(args: DisposeRequest): void;
 
   /**
-   * Call a method on a wallet account
+   * Call a method on a wallet account resolved by account index
    * @param args - Call method request
    * @returns Promise resolving to call method response
    */
   callMethod(args: CallMethodRequest): Promise<CallMethodResponse>;
+
+  /**
+   * Call a method on a wallet account resolved by BIP relative derivation path
+   * via `wdk.getAccountByPath(network, path)`.
+   * @param args - Call method by path request
+   * @returns Promise resolving to call method by path response
+   */
+  callMethodByPath(args: CallMethodByPathRequest): Promise<CallMethodByPathResponse>;
 
   /**
    * Register a handler for log messages
@@ -80,6 +90,16 @@ export class HRPC {
    */
   onCallMethod(
     responseFn: (request: CallMethodRequest) => CallMethodResponse | Promise<CallMethodResponse>
+  ): void;
+
+  /**
+   * Register a handler for call method by path
+   * @param responseFn - Handler function for call method by path requests
+   */
+  onCallMethodByPath(
+    responseFn: (
+      request: CallMethodByPathRequest
+    ) => CallMethodByPathResponse | Promise<CallMethodByPathResponse>
   ): void;
 }
 
