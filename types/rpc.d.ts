@@ -76,6 +76,22 @@ export interface CallMethodByPathResponse {
 }
 
 /**
+ * Batch-derive Taproot addresses from wallet-relative BIP path suffixes.
+ * `relativePathsJson` is a JSON array of suffixes passed to `wdk.getAccountByPath`
+ * (e.g. `["9'/0/0","9'/0/1"]`). `includeKeyMaterial` is 1 to also return
+ * internal/tweaked Taproot key hex.
+ */
+export interface DeriveTaprootAddressesFromPathsRequest {
+  relativePathsJson: string;
+  network?: string | null;
+  includeKeyMaterial?: number;
+}
+
+export interface DeriveTaprootAddressesFromPathsResponse {
+  addressesJson?: string | null;
+}
+
+/**
  * Network configuration map
  * Keys are network names (e.g., 'ethereum', 'spark')
  * Values are network-specific configuration objects

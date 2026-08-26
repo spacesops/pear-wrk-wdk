@@ -6,7 +6,9 @@ import type {
   CallMethodRequest,
   CallMethodResponse,
   CallMethodByPathRequest,
-  CallMethodByPathResponse
+  CallMethodByPathResponse,
+  DeriveTaprootAddressesFromPathsRequest,
+  DeriveTaprootAddressesFromPathsResponse
 } from './rpc';
 
 /**
@@ -65,6 +67,14 @@ export class HRPC {
   callMethodByPath(args: CallMethodByPathRequest): Promise<CallMethodByPathResponse>;
 
   /**
+   * Batch-derive Taproot addresses / scriptPubKeys (optional key material)
+   * for wallet-relative BIP path suffixes via `wdk.getAccountByPath`.
+   */
+  deriveTaprootAddressesFromPaths(
+    args: DeriveTaprootAddressesFromPathsRequest
+  ): Promise<DeriveTaprootAddressesFromPathsResponse>;
+
+  /**
    * Register a handler for log messages
    * @param responseFn - Handler function for log requests
    */
@@ -100,6 +110,15 @@ export class HRPC {
     responseFn: (
       request: CallMethodByPathRequest
     ) => CallMethodByPathResponse | Promise<CallMethodByPathResponse>
+  ): void;
+
+  /**
+   * Register a handler for batch Taproot address derivation
+   */
+  onDeriveTaprootAddressesFromPaths(
+    responseFn: (
+      request: DeriveTaprootAddressesFromPathsRequest
+    ) => DeriveTaprootAddressesFromPathsResponse | Promise<DeriveTaprootAddressesFromPathsResponse>
   ): void;
 }
 

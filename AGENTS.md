@@ -21,3 +21,7 @@ An exact pin below what a dependent's range prefers is fine **as long as the pin
 ## Release
 
 `prepublishOnly` runs `gen:mobile-bundle`, so the published bundle is regenerated from whatever is installed at publish time — confirm the tarball's pins still match its bundle afterwards. Publish before bumping `wdk-react-native-core`, which pins this package exactly. Never commit pack artifacts (`*.tgz`).
+
+## Worklet features: repack, never app-patch
+
+Anything that must run inside the Bare worklet (new network, HRPC handler, account method, bundled wallet module) **must** land here and ship via `schema.json` → exact dependency pins → `gen:mobile-bundle` → publish. Consuming apps must **not** add postinstall patches under `node_modules/@spacesops/pear-wrk-wdk` for new behavior — those bundles are what execute on device; app-side copies of wallet packages do not. See Spaces Wallet rule `pear-wrk-repack.mdc`.

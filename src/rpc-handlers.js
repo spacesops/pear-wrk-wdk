@@ -146,13 +146,84 @@ const callWdkMethodOnAccount = async (context, methodName, network, accountRef, 
     )
   }
 
-  const result = await account[methodName](args)
+  const methodArgs = await resolveAccountMethodArgs(context, methodName, network, args)
+  const result = await account[methodName](methodArgs)
 
   if (options.transformResult) {
     return options.transformResult(result)
   }
 
   return result
+}
+
+const METHODS_NEEDING_PRIOR_ACCOUNT = new Set([
+  'quoteUpdateTransactionWithHexTX',
+  'updateTransactionWithHex'
+])
+
+/**
+ * `WalletAccountBtc.quoteUpdateTransactionWithHexTX` / `updateTransactionWithHex` need a live
+ * `priorAcct` object. That cannot cross HRPC, so the host sends `priorAccountRelativePath`
+ * and the worklet resolves it with `wdk.getAccountByPath` before calling the account method.
+ *
+ * @param {Object} context
+ * @param {string} methodName
+ * @param {string} network
+ * @param {any} args
+ * @returns {Promise<any>}
+ */
+async function resolveAccountMethodArgs (context, methodName, network, args) {
+  if (!METHODS_NEEDING_PRIOR_ACCOUNT.has(methodName)) {
+    return args
+  }
+
+  if (!args || typeof args !== 'object' || Array.isArray(args)) {
+    throw createErrorWithCode(
+      `${methodName} requires an options object with priorAccountRelativePath`,
+      ERROR_CODES.BAD_REQUEST
+    )
+  }
+
+  const path = typeof args.priorAccountRelativePath === 'string'
+    ? args.priorAccountRelativePath.trim()
+    : ''
+  if (!path) {
+    throw createErrorWithCode(
+      `${methodName} requires priorAccountRelativePath (BIP relative path; priorAcct cannot cross HRPC)`,
+      ERROR_CODES.BAD_REQUEST
+    )
+  }
+
+  const { wdk } = context
+  if (!wdk || typeof wdk.getAccountByPath !== 'function') {
+    throw createErrorWithCode(
+      'WDK.getAccountByPath is not available in this worklet runtime',
+      ERROR_CODES.BAD_REQUEST
+    )
+  }
+
+  let priorAcct
+  try {
+    priorAcct = await wdk.getAccountByPath(network, path)
+  } catch (error) {
+    if (error.code) throw error
+    throw createErrorWithCode(
+      `Failed to get prior account for network "${network}" at path "${path}": ${error.message}`,
+      ERROR_CODES.ACCOUNT_BALANCES
+    )
+  }
+
+  const resolved = { ...args, priorAcct }
+  delete resolved.priorAccountRelativePath
+
+  if (typeof resolved.value === 'string' && /^-?\d+$/.test(resolved.value.trim())) {
+    resolved.value = BigInt(resolved.value.trim())
+  }
+  if (typeof resolved.feeRate === 'string' && /^-?\d+$/.test(resolved.feeRate.trim())) {
+    resolved.feeRate = BigInt(resolved.feeRate.trim())
+  }
+
+  return resolved
 }
 
 /**
@@ -432,6 +503,96 @@ function registerRpcHandlers(rpc, context) {
     return { result: safeStringify(result) }
   }))
 
+  /**
+   * Batch-derive Taproot addresses / scriptPubKeys (and optional key material)
+   * for wallet-relative BIP path suffixes via `wdk.getAccountByPath`.
+   */
+  rpc.onDeriveTaprootAddressesFromPaths(withErrorHandling(async (payload) => {
+    const { wdk } = handlerContext
+    if (!wdk) {
+      throw createErrorWithCode('WDK not initialized. Call initializeWDK first.', ERROR_CODES.WDK_MANAGER_INIT)
+    }
+    if (typeof wdk.getAccountByPath !== 'function') {
+      throw createErrorWithCode(
+        'WDK.getAccountByPath is not available in this worklet runtime',
+        ERROR_CODES.BAD_REQUEST
+      )
+    }
+
+    let relativePaths
+    validateRequest(payload, () => {
+      validateNonEmptyString(payload.relativePathsJson, 'relativePathsJson')
+      relativePaths = validateJSON(payload.relativePathsJson, 'relativePathsJson')
+      if (!Array.isArray(relativePaths)) {
+        throw createErrorWithCode(
+          'relativePathsJson must be a JSON array of path suffix strings',
+          ERROR_CODES.BAD_REQUEST
+        )
+      }
+    }, 'Payload')
+
+    const network = (typeof payload.network === 'string' && payload.network.trim().length > 0)
+      ? payload.network.trim()
+      : 'bitcoin'
+    const includeKeyMaterial = Number(payload.includeKeyMaterial) === 1
+
+    const entries = []
+    for (const rel of relativePaths) {
+      if (typeof rel !== 'string' || rel.trim().length === 0) {
+        throw createErrorWithCode(
+          'Each relative path must be a non-empty string',
+          ERROR_CODES.BAD_REQUEST
+        )
+      }
+      const path = rel.trim()
+      let account
+      try {
+        account = await wdk.getAccountByPath(network, path)
+      } catch (error) {
+        if (error.code) throw error
+        throw createErrorWithCode(
+          `Failed to get account for network "${network}" at path "${path}": ${error.message}`,
+          ERROR_CODES.ACCOUNT_BALANCES
+        )
+      }
+
+      const addressResult = await account.getAddress()
+      const address = typeof addressResult === 'string'
+        ? addressResult
+        : (addressResult && addressResult.address) || ''
+      if (!address) {
+        throw createErrorWithCode(
+          `getAddress returned no address for path ${path}`,
+          ERROR_CODES.BAD_REQUEST
+        )
+      }
+
+      let scriptPubKeyHex
+      if (typeof account.getScriptPubKeyHex === 'function') {
+        scriptPubKeyHex = await account.getScriptPubKeyHex(address)
+      }
+      if (typeof scriptPubKeyHex !== 'string' || scriptPubKeyHex.length === 0) {
+        throw createErrorWithCode(
+          `getScriptPubKeyHex returned empty for path ${path}`,
+          ERROR_CODES.BAD_REQUEST
+        )
+      }
+
+      const entry = { address, scriptPubKeyHex }
+      if (includeKeyMaterial && typeof account.getTaprootKeyMaterialHex === 'function') {
+        const keys = await account.getTaprootKeyMaterialHex()
+        if (keys && typeof keys === 'object') {
+          if (keys.internalPubKeyHex) entry.internalPubKeyHex = keys.internalPubKeyHex
+          if (keys.privateKeyHex) entry.privateKeyHex = keys.privateKeyHex
+          if (keys.tweakedPrivateKeyHex) entry.tweakedPrivateKeyHex = keys.tweakedPrivateKeyHex
+        }
+      }
+      entries.push(entry)
+    }
+
+    return { addressesJson: safeStringify(entries) }
+  }))
+
   rpc.onDispose(withErrorHandling(() => {
     if (handlerContext.wdk) {
       handlerContext.wdk.dispose()
@@ -447,6 +608,7 @@ module.exports = {
   createErrorWithCode,
   callWdkMethod,
   callWdkMethodByPath,
-  callWdkMethodOnAccount
+  callWdkMethodOnAccount,
+  resolveAccountMethodArgs
 }
 

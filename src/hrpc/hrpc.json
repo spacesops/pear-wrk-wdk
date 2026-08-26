@@ -109,6 +109,19 @@
         "stream": false
       },
       "version": 1
+    },
+    {
+      "id": 9,
+      "name": "@wdk-core/deriveTaprootAddressesFromPaths",
+      "request": {
+        "name": "@wdk-core/deriveTaprootAddressesFromPaths-request",
+        "stream": false
+      },
+      "response": {
+        "name": "@wdk-core/deriveTaprootAddressesFromPaths-response",
+        "stream": false
+      },
+      "version": 1
     }
   ]
 }

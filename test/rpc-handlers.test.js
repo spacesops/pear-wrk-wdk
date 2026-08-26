@@ -22,6 +22,7 @@ const mockRpc = {
   onInitializeWDK: function (handler) { this.handlers.initializeWDK = handler },
   onCallMethod: function (handler) { this.handlers.callMethod = handler },
   onCallMethodByPath: function (handler) { this.handlers.callMethodByPath = handler },
+  onDeriveTaprootAddressesFromPaths: function (handler) { this.handlers.deriveTaprootAddressesFromPaths = handler },
   onDispose: function (handler) { this.handlers.dispose = handler }
 }
 
@@ -56,7 +57,21 @@ describe('RPC Handlers', () => {
           return {
             getAddress: async () => ({ address: `0x${network}-${index}` }),
             getBalance: async () => ({ balance: '1000000000000000000' }),
-            getScriptPubKeyHex: async (address) => `spk:${address}`
+            getScriptPubKeyHex: async (address) => `spk:${address}`,
+            quoteUpdateTransactionWithHexTX: async (opts) => {
+              if (!opts || !opts.priorAcct) {
+                throw new Error('missing priorAcct')
+              }
+              const prior = await opts.priorAcct.getAddress()
+              return { hex: `quoted:${opts.to}:${opts.priorTx}:${prior.address}`, fee: 250n }
+            },
+            updateTransactionWithHex: async (opts) => {
+              if (!opts || !opts.priorAcct) {
+                throw new Error('missing priorAcct')
+              }
+              const prior = await opts.priorAcct.getAddress()
+              return { hash: `txid:${opts.priorTx}:${prior.address}`, fee: 250n }
+            }
           }
         }
         async getAccountByPath(network, path) {
@@ -105,6 +120,7 @@ describe('RPC Handlers', () => {
       assert.ok(mockRpc.handlers.initializeWDK, 'initializeWDK handler should be registered')
       assert.ok(mockRpc.handlers.callMethod, 'callMethod handler should be registered')
       assert.ok(mockRpc.handlers.callMethodByPath, 'callMethodByPath handler should be registered')
+      assert.ok(mockRpc.handlers.deriveTaprootAddressesFromPaths, 'deriveTaprootAddressesFromPaths handler should be registered')
       assert.ok(mockRpc.handlers.dispose, 'dispose handler should be registered')
     })
   })
@@ -472,6 +488,156 @@ describe('RPC Handlers', () => {
           path: '   '
         }),
         /path must be a non-empty string/
+      )
+    })
+  })
+
+  describe('quoteUpdateTransactionWithHexTX / updateTransactionWithHex', () => {
+    async function initializeWdk () {
+      const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
+      const seedData = await mockRpc.handlers.getSeedAndEntropyFromMnemonic({ mnemonic })
+      const config = {
+        ethereum: { rpcUrl: 'https://eth.example.com' },
+        spark: { rpcUrl: 'https://spark.example.com' }
+      }
+      await mockRpc.handlers.initializeWDK({
+        config: JSON.stringify(config),
+        encryptionKey: seedData.encryptionKey,
+        encryptedSeed: seedData.encryptedSeedBuffer
+      })
+    }
+
+    test('should resolve priorAccountRelativePath via getAccountByPath and quote', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      const result = await mockRpc.handlers.callMethod({
+        methodName: 'quoteUpdateTransactionWithHexTX',
+        network: 'ethereum',
+        accountIndex: 0,
+        args: JSON.stringify({
+          to: 'bc1qdest',
+          hex: 'aabb',
+          priorTx: 'txid1',
+          priorAccountRelativePath: "9'/0/0"
+        })
+      })
+
+      const parsed = JSON.parse(result.result)
+      assert.strictEqual(parsed.hex, "quoted:bc1qdest:txid1:0xethereum-path-9'/0/0")
+      assert.strictEqual(parsed.fee, '250')
+    })
+
+    test('should broadcast updateTransactionWithHex after resolving prior path', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      const result = await mockRpc.handlers.callMethod({
+        methodName: 'updateTransactionWithHex',
+        network: 'ethereum',
+        accountIndex: 0,
+        args: JSON.stringify({
+          to: 'bc1qdest',
+          hex: 'aabb',
+          priorTx: 'txid1',
+          priorAccountRelativePath: "9'/0/1"
+        })
+      })
+
+      const parsed = JSON.parse(result.result)
+      assert.strictEqual(parsed.hash, "txid:txid1:0xethereum-path-9'/0/1")
+      assert.strictEqual(parsed.fee, '250')
+    })
+
+    test('should reject quote without priorAccountRelativePath', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      await assert.rejects(
+        async () => await mockRpc.handlers.callMethod({
+          methodName: 'quoteUpdateTransactionWithHexTX',
+          network: 'ethereum',
+          accountIndex: 0,
+          args: JSON.stringify({
+            to: 'bc1qdest',
+            hex: 'aabb',
+            priorTx: 'txid1'
+          })
+        }),
+        /priorAccountRelativePath/
+      )
+    })
+  })
+
+  describe('deriveTaprootAddressesFromPaths', () => {
+    async function initializeWdk () {
+      const mnemonic = 'abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about'
+      const seedData = await mockRpc.handlers.getSeedAndEntropyFromMnemonic({ mnemonic })
+      const config = {
+        ethereum: { rpcUrl: 'https://eth.example.com' },
+        spark: { rpcUrl: 'https://spark.example.com' }
+      }
+      await mockRpc.handlers.initializeWDK({
+        config: JSON.stringify(config),
+        encryptionKey: seedData.encryptionKey,
+        encryptedSeed: seedData.encryptedSeedBuffer
+      })
+    }
+
+    test('should derive address and scriptPubKey for each path', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      const result = await mockRpc.handlers.deriveTaprootAddressesFromPaths({
+        relativePathsJson: JSON.stringify(["9'/0/0", "9'/0/1"]),
+        network: 'ethereum'
+      })
+
+      const entries = JSON.parse(result.addressesJson)
+      assert.strictEqual(entries.length, 2)
+      assert.strictEqual(entries[0].address, "0xethereum-path-9'/0/0")
+      assert.strictEqual(entries[0].scriptPubKeyHex, "spk:0xethereum-path-9'/0/0")
+      assert.strictEqual(entries[1].address, "0xethereum-path-9'/0/1")
+      assert.ok(!entries[0].privateKeyHex)
+    })
+
+    test('should include taproot key material when requested', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      const result = await mockRpc.handlers.deriveTaprootAddressesFromPaths({
+        relativePathsJson: JSON.stringify(["9'/0/0"]),
+        network: 'ethereum',
+        includeKeyMaterial: 1
+      })
+
+      const entries = JSON.parse(result.addressesJson)
+      assert.strictEqual(entries[0].internalPubKeyHex, 'aa')
+      assert.strictEqual(entries[0].privateKeyHex, 'bb')
+      assert.strictEqual(entries[0].tweakedPrivateKeyHex, 'cc')
+    })
+
+    test('should reject invalid relativePathsJson', async () => {
+      registerRpcHandlers(mockRpc, context)
+      await initializeWdk()
+
+      await assert.rejects(
+        async () => await mockRpc.handlers.deriveTaprootAddressesFromPaths({
+          relativePathsJson: JSON.stringify({ not: 'an array' }),
+          network: 'ethereum'
+        }),
+        /JSON array of path suffix strings/
+      )
+    })
+
+    test('should reject when WDK not initialized', async () => {
+      registerRpcHandlers(mockRpc, context)
+
+      await assert.rejects(
+        async () => await mockRpc.handlers.deriveTaprootAddressesFromPaths({
+          relativePathsJson: JSON.stringify(["9'/0/0"])
+        }),
+        /WDK not initialized/
       )
     })
   })
