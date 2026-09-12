@@ -1,6 +1,6 @@
 {
   "name": "@spacesops/pear-wrk-wdk",
-  "version": "1.1.1-beta.52",
+  "version": "1.1.1-beta.55",
   "description": "Spacesops WDK worklet bundle for React Native Bare (EVM, Spark, Bitcoin, TON, Tron, Solana)",
   "main": "index.js",
   "scripts": {
@@ -18,13 +18,13 @@
   "dependencies": {
     "@buildonspark/spark-frost-bare-addon": "0.0.12",
     "@scure/bip39": "^1.6.0",
-    "@spacesops/wdk-wallet-btc": "1.0.0-beta.22",
+    "@spacesops/wdk-wallet-btc": "1.0.0-beta.25",
     "@tetherto/wdk": "1.0.0-beta.15",
     "@tetherto/wdk-wallet-evm-erc-4337": "1.0.0-beta.14",
+    "@tetherto/wdk-wallet-solana": "1.0.0-beta.12",
     "@tetherto/wdk-wallet-spark": "1.0.0-beta.22",
     "@tetherto/wdk-wallet-ton": "1.0.0-beta.12",
     "@tetherto/wdk-wallet-tron": "1.0.0-beta.9",
-    "@tetherto/wdk-wallet-solana": "1.0.0-beta.12",
     "bare-abort": "2.0.13",
     "bare-buffer": "3.6.2",
     "bare-crypto": "1.12.0",
